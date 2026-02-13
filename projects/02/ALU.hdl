@@ -1,0 +1,35 @@
+CHIP ALU {
+    IN  
+        x[16], y[16],  // 16-bit inputs        
+        zx, // zero the x input?
+        nx, // negate the x input?
+        zy, // zero the y input?
+        ny, // negate the y input?
+        f,  // compute (out = x + y) or (out = x & y)?
+        no; // negate the out output?
+    OUT 
+        out[16], // 16-bit output
+        zr,      // if (out == 0) equals 1, else 0
+        ng;      // if (out < 0)  equals 1, else 0
+
+    PARTS:
+    //// Replace this comment with your code.
+    Not16(in= x, out=notX );
+    And16(a= x, b= notX, out= zeroes);
+    Mux16(a=x, b=zeroes, sel=zx, out=zxout);
+    Not16(in=zxout, out=notzxout);
+    Mux16(a= zxout, b= notzxout, sel=nx , out=xx );
+    Mux16(a=y, b=zeroes, sel=zy, out=zyout);
+    Not16(in=zyout, out=notzyout);
+    Mux16(a= zyout, b= notzyout, sel= ny, out=yy );
+    Add16(a= yy, b= xx, out=sum1Add );
+    And16(a= yy, b= xx, out=sum1And);
+    Mux16(a= sum1And, b= sum1Add, sel= f, out=fout );
+    Not16(in= fout, out= notfout);
+    Mux16(a= fout, b= notfout, sel= no, out=out, out[15]=firstOut, out[0..7]=finalLeft, out[8..15]=finalRight );
+    And(a= firstOut, b=true, out=ng);
+    Or8Way(in= finalLeft, out=flres);
+    Or8Way(in= finalRight, out=frres);
+    Or(a= flres, b= frres, out=nzr);
+    Not(in= nzr, out=zr );
+}

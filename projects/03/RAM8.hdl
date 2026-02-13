@@ -1,0 +1,52 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/3/a/RAM8.hdl
+/**
+ * Memory of eight 16-bit registers.
+ * If load is asserted, the value of the register selected by
+ * address is set to in; Otherwise, the value does not change.
+ * The value of the selected register is emitted by out.
+ */
+CHIP RAM8 {
+    IN in[16], load, address[3];
+    OUT out[16];
+
+    PARTS:
+    //// Replace this comment with your code.
+    Not(in=address[0], out= not0);
+    Not(in=address[1], out= not1);
+    Not(in=address[2], out= not2);
+    And(a= not0, b= not1, out=ffn);
+    And(a= ffn, b= not2, out= fff);
+    And(a= ffn, b= address[2], out=fft);
+    And(a= address[0], b= not1, out=tfn);
+    And(a= tfn, b= not2, out=tff);
+    And(a= tfn, b= address[2], out=tft );
+    And(a= address[0], b= address[1], out=ttn );
+    And(a= ttn, b= address[2], out=ttt );
+    And(a= ttn, b= not2, out=ttf );
+    And(a= not0, b= address[1], out=ftn );
+    And(a= ftn, b= address[2], out=ftt );
+    And(a= ftn, b= not2, out=ftf );
+
+    And(a= fff, b= load, out=fffload );
+    And(a= tft, b= load, out=tftload );
+    And(a= fft, b= load, out=fftload );
+    And(a= tff, b= load, out=tffload );
+    And(a= ttt, b= load, out=tttload );
+    And(a= ttf, b= load, out=ttfload );
+    And(a= ftf, b= load, out=ftfload );
+    And(a= ftt, b= load, out=fttload );
+
+    Register(in=in, load=fffload, out=r0);
+    Register(in=in, load=tffload, out=r1);
+    Register(in=in, load=ftfload, out=r2);
+    Register(in=in, load=ttfload, out=r3);
+    Register(in=in, load=fftload, out=r4);
+    Register(in=in, load=tftload, out=r5);
+    Register(in=in, load=fttload, out=r6);
+    Register(in=in, load=tttload, out=r7);
+    Mux8Way16(a= r0, b=r1, c= r2, d= r3, e= r4, f= r5, g= r6, h= r7, sel= address, out= out);
+
+}
