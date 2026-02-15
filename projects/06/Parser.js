@@ -1,3 +1,5 @@
+const NULL_FIELD = 'null';
+
 class Parser {
   constructor(fileContent) {
     this.lines = fileContent.split('\n');
@@ -18,12 +20,15 @@ class Parser {
   }
 
   sanitizeLine(line) {
-    let processed = line.trim();
-    processed = processed.replace(/\s/g, '');
+    // First, remove inline comments (everything after //)
+    const commentIndex = line.indexOf('//');
+    let processed = commentIndex !== -1 ? line.substring(0, commentIndex) : line;
+
+    // Then trim and remove all whitespace
+    processed = processed.trim().replace(/\s/g, '');
+
+    // Return null for empty lines
     if (processed === '') {
-      return null;
-    }
-    if (processed.startsWith('//')) {
       return null;
     }
 
@@ -50,9 +55,9 @@ class Parser {
       }
       [comp, jump] = compjump.split(';');
 
-      result.dest = dest ?? 'n';
-      result.comp = comp ?? 'n';
-      result.jump = jump ?? 'n';
+      result.dest = dest ?? NULL_FIELD;
+      result.comp = comp ?? NULL_FIELD;
+      result.jump = jump ?? NULL_FIELD;
       result.alpha = comp.includes('M');
     }
     return result;

@@ -1,49 +1,58 @@
 import { SymbolTable } from './constants.js';
 
+const NULL_FIELD = 'null';
+
 class Code {
-  symbolTable = { ...SymbolTable };
+  symbolTable = SymbolTable;
   constructor(instructions) {
     this.instructions = instructions;
     this.symbolCounter = 16;
   }
 
   processInstructions() {
-    let realLineCounter = 0;
-    for (let i = 0; i < this.instructions.length; i++) {
-      const inst = this.instructions[i];
-      if (inst.instructionType === 'C_INSTRUCTION') {
-        const binary = this.processCInstruction(inst);
-        inst.binary = binary;
-      } else if (inst.instructionType === 'L_INSTRUCTION') {
-        this.symbolTable[inst.symbol] = realLineCounter;
-        continue;
+    this.buildSymbolTable();
+    this.generateBinary();
+  }
+
+  buildSymbolTable() {
+    let romAddress = 0;
+    for (const inst of this.instructions) {
+      if (inst.instructionType === 'L_INSTRUCTION') {
+        this.symbolTable[inst.symbol] = romAddress;
+      } else {
+        romAddress++;
       }
-      realLineCounter++;
+    }
+  }
+
+  generateBinary() {
+    for (const inst of this.instructions) {
+      if (inst.instructionType === 'C_INSTRUCTION') {
+        inst.binary = this.processCInstruction(inst);
+      } else if (inst.instructionType === 'A_INSTRUCTION') {
+        inst.binary = this.processAInstruction(inst);
+      }
+    }
+  }
+
+  processAInstruction(inst) {
+    if (!inst.symbol) {
+      throw new Error('A-instruction must contain symbol or number');
     }
 
-    for (const inst of this.instructions) {
-      if (inst.instructionType === 'A_INSTRUCTION') {
-        if (!inst.symbol) {
-          throw new Error('A-instruction must contain symbol or number');
-        }
+    const numericValue = Number.parseInt(inst.symbol, 10);
 
-        const symToNum = Number.parseInt(inst.symbol, 10);
-
-        if (isNaN(symToNum)) {
-          if (inst.symbol in this.symbolTable) {
-            const value = this.symbolTable[inst.symbol];
-            const binary = this.convertToBinary(value);
-            inst.binary = `0${binary}`;
-          } else {
-            this.symbolTable[inst.symbol] = this.symbolCounter;
-            inst.binary = `0${this.convertToBinary(this.symbolCounter)}`;
-            this.symbolCounter++;
-          }
-        } else {
-          const binary = this.convertToBinary(symToNum);
-          inst.binary = `0${binary}`;
-        }
+    if (isNaN(numericValue)) {
+      // It's a symbol, resolve it
+      if (!(inst.symbol in this.symbolTable)) {
+        // Allocate new variable
+        this.symbolTable[inst.symbol] = this.symbolCounter++;
       }
+      const address = this.symbolTable[inst.symbol];
+      return `0${this.convertToBinary(address)}`;
+    } else {
+      // It's a numeric literal
+      return `0${this.convertToBinary(numericValue)}`;
     }
   }
 
@@ -55,36 +64,28 @@ class Code {
     return `111${alpha}${comp}${dest}${jump}`;
   }
 
-  processLInstruction(inst) {}
-
   getDestCode(dest) {
+    // Normalize by sorting the destination registers (A, D, M in alphabetical order)
+    const normalized = dest === NULL_FIELD ? NULL_FIELD : dest.split('').sort().join('');
     const config = {
-      n: '000',
+      [NULL_FIELD]: '000',
       M: '001',
       D: '010',
       DM: '011',
-      MD: '011',
       A: '100',
       AM: '101',
-      MA: '101',
       AD: '110',
-      DA: '110',
       ADM: '111',
-      AMD: '111',
-      DMA: '111',
-      DAM: '111',
-      MDA: '111',
-      MAD: '111',
     };
-    if (!config[dest]) {
-      throw new Error(`dest is wrong ${dest}`);
+    if (!config[normalized]) {
+      throw new Error(`Invalid destination: ${dest}`);
     }
-    return config[dest];
+    return config[normalized];
   }
 
   getJumpCode(jmp) {
     const config = {
-      n: '000',
+      [NULL_FIELD]: '000',
       JGT: '001',
       JEQ: '010',
       JGE: '011',
@@ -94,7 +95,7 @@ class Code {
       JMP: '111',
     };
     if (!config[jmp]) {
-      throw new Error('jmp is wrong', jmp);
+      throw new Error(`Invalid jump: ${jmp}`);
     }
     return config[jmp];
   }
@@ -138,15 +139,7 @@ class Code {
   }
 
   convertToBinary(num) {
-    const result = [];
-    let counter = 15;
-    while (counter > 0) {
-      const mod = num % 2;
-      result.unshift(mod);
-      num = Math.floor(num / 2);
-      counter--;
-    }
-    return result.join('');
+    return num.toString(2).padStart(15, '0');
   }
 }
 
