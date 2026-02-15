@@ -1,4 +1,4 @@
-import { arithmeticCommands } from './constants.js';
+const { arithmeticCommands } = require('./constants.js');
 
 class Parser {
   constructor(fileContent) {
@@ -59,4 +59,4 @@ class Parser {
   }
 }
 
-export default Parser;
+module.exports = Parser;

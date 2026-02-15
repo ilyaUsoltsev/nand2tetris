@@ -34,7 +34,7 @@ class Code {
     } else if (arg1 === 'static') {
       return (result += this.processPushStatic(arg2));
     } else if (arg1 === 'temp') {
-      return (result += this.processPushLocalArgThisThat(5, arg2));
+      return (result += this.processPushTemp(arg2));
     } else if (arg1 === 'pointer') {
       return (result += this.processPushPointer(arg2));
     }
@@ -54,7 +54,7 @@ class Code {
     } else if (arg1 === 'static') {
       return (result += this.processPopStatic(arg2));
     } else if (arg1 === 'temp') {
-      return (result += this.processPopLocalArgThisThat(5, arg2));
+      return (result += this.processPopTemp(arg2));
     } else if (arg1 === 'pointer') {
       return (result += this.processPopPointer(arg2));
     }
@@ -121,6 +121,29 @@ class Code {
     `;
   }
 
+  processPushTemp(arg2) {
+    let result = `
+      @5
+      D=A
+      @processPushTemp
+      M=D
+    `;
+    return (result += this.processPushLocalArgThisThat(
+      'processPushTemp',
+      arg2,
+    ));
+  }
+
+  processPopTemp(arg2) {
+    let result = `
+      @5
+      D=A
+      @processPopTemp
+      M=D
+    `;
+    return (result += this.processPopLocalArgThisThat('processPopTemp', arg2));
+  }
+
   processPopLocalArgThisThat(segment, i) {
     return `
       ${this.getAddressOfSegementIElement(segment, i)}
@@ -164,7 +187,7 @@ class Code {
     if (arg1 === 'add') {
       return (result += this.processOperator('+'));
     } else if (arg1 === 'sub') {
-      return (result += this.processOperator('-'));
+      return (result += this.processSub());
     } else if (arg1 === 'neg') {
       return (result += this.processSign('-'));
     } else if (arg1 === 'eq') {
@@ -194,7 +217,7 @@ class Code {
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if ${condition}
       @${trueAddress}
       D;${condition}
@@ -203,6 +226,7 @@ class Code {
       A=M
       M=0
       @${endProcessAddress}
+      0;JMP
       (${trueAddress})
       @SP
       A=M
@@ -239,6 +263,22 @@ class Code {
       M=M+1
     `;
   }
+
+  processSub() {
+    return `
+      @SP
+      M=M-1
+      A=M
+      D=M
+      @SP
+      M=M-1
+      A=M
+      D=M-D
+      M=D
+      @SP
+      M=M+1
+    `;
+  }
 }
 
-export default Code;
+module.exports = Code;

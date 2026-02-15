@@ -27,20 +27,21 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if JEQ
-      @TRUE_StackTest_0.916679813647588
+      @TRUE_StackTest_0.3974346479846109
       D;JEQ
       // else
       @SP
       A=M
       M=0
-      @END_StackTest_0.7882753256013486
-      (TRUE_StackTest_0.916679813647588)
+      @END_StackTest_0.35597480633347267
+      0;JMP
+      (TRUE_StackTest_0.3974346479846109)
       @SP
       A=M
       M=-1
-      (END_StackTest_0.7882753256013486)
+      (END_StackTest_0.35597480633347267)
       @SP
       M=M+1
     
@@ -73,20 +74,21 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if JEQ
-      @TRUE_StackTest_0.7543191772364259
+      @TRUE_StackTest_0.8563670989345573
       D;JEQ
       // else
       @SP
       A=M
       M=0
-      @END_StackTest_0.5457916871789903
-      (TRUE_StackTest_0.7543191772364259)
+      @END_StackTest_0.9937482469212939
+      0;JMP
+      (TRUE_StackTest_0.8563670989345573)
       @SP
       A=M
       M=-1
-      (END_StackTest_0.5457916871789903)
+      (END_StackTest_0.9937482469212939)
       @SP
       M=M+1
     
@@ -119,20 +121,21 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if JEQ
-      @TRUE_StackTest_0.2886688724468036
+      @TRUE_StackTest_0.047480840925700374
       D;JEQ
       // else
       @SP
       A=M
       M=0
-      @END_StackTest_0.03324708848542213
-      (TRUE_StackTest_0.2886688724468036)
+      @END_StackTest_0.6834123566324677
+      0;JMP
+      (TRUE_StackTest_0.047480840925700374)
       @SP
       A=M
       M=-1
-      (END_StackTest_0.03324708848542213)
+      (END_StackTest_0.6834123566324677)
       @SP
       M=M+1
     
@@ -165,20 +168,21 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if JLT
-      @TRUE_StackTest_0.6682288546398847
+      @TRUE_StackTest_0.898978742277003
       D;JLT
       // else
       @SP
       A=M
       M=0
-      @END_StackTest_0.16025501982541845
-      (TRUE_StackTest_0.6682288546398847)
+      @END_StackTest_0.6837758905543272
+      0;JMP
+      (TRUE_StackTest_0.898978742277003)
       @SP
       A=M
       M=-1
-      (END_StackTest_0.16025501982541845)
+      (END_StackTest_0.6837758905543272)
       @SP
       M=M+1
     
@@ -211,20 +215,21 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if JLT
-      @TRUE_StackTest_0.8133764649651551
+      @TRUE_StackTest_0.21793931670695343
       D;JLT
       // else
       @SP
       A=M
       M=0
-      @END_StackTest_0.8122880714025302
-      (TRUE_StackTest_0.8133764649651551)
+      @END_StackTest_0.41492390026006887
+      0;JMP
+      (TRUE_StackTest_0.21793931670695343)
       @SP
       A=M
       M=-1
-      (END_StackTest_0.8122880714025302)
+      (END_StackTest_0.41492390026006887)
       @SP
       M=M+1
     
@@ -257,20 +262,21 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if JLT
-      @TRUE_StackTest_0.6804512375846234
+      @TRUE_StackTest_0.2425508964321581
       D;JLT
       // else
       @SP
       A=M
       M=0
-      @END_StackTest_0.4300626590133436
-      (TRUE_StackTest_0.6804512375846234)
+      @END_StackTest_0.2858524457590832
+      0;JMP
+      (TRUE_StackTest_0.2425508964321581)
       @SP
       A=M
       M=-1
-      (END_StackTest_0.4300626590133436)
+      (END_StackTest_0.2858524457590832)
       @SP
       M=M+1
     
@@ -303,20 +309,21 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if JGT
-      @TRUE_StackTest_0.6116702988448977
+      @TRUE_StackTest_0.5309082199015802
       D;JGT
       // else
       @SP
       A=M
       M=0
-      @END_StackTest_0.02749824035819981
-      (TRUE_StackTest_0.6116702988448977)
+      @END_StackTest_0.8574819663912101
+      0;JMP
+      (TRUE_StackTest_0.5309082199015802)
       @SP
       A=M
       M=-1
-      (END_StackTest_0.02749824035819981)
+      (END_StackTest_0.8574819663912101)
       @SP
       M=M+1
     
@@ -349,20 +356,21 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if JGT
-      @TRUE_StackTest_0.42754470879969686
+      @TRUE_StackTest_0.7156443499810627
       D;JGT
       // else
       @SP
       A=M
       M=0
-      @END_StackTest_0.37509835255293345
-      (TRUE_StackTest_0.42754470879969686)
+      @END_StackTest_0.7744829258648653
+      0;JMP
+      (TRUE_StackTest_0.7156443499810627)
       @SP
       A=M
       M=-1
-      (END_StackTest_0.37509835255293345)
+      (END_StackTest_0.7744829258648653)
       @SP
       M=M+1
     
@@ -395,20 +403,21 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       // if JGT
-      @TRUE_StackTest_0.8486535345232293
+      @TRUE_StackTest_0.45348525298925324
       D;JGT
       // else
       @SP
       A=M
       M=0
-      @END_StackTest_0.35918258256440727
-      (TRUE_StackTest_0.8486535345232293)
+      @END_StackTest_0.3483246469268957
+      0;JMP
+      (TRUE_StackTest_0.45348525298925324)
       @SP
       A=M
       M=-1
-      (END_StackTest_0.35918258256440727)
+      (END_StackTest_0.3483246469268957)
       @SP
       M=M+1
     
@@ -475,7 +484,7 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       M=D
       @SP
       M=M+1

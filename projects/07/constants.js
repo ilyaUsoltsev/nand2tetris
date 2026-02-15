@@ -1,4 +1,4 @@
-export const arithmeticCommands = {
+const arithmeticCommands = {
   add: true,
   sub: true,
   neg: true,
@@ -9,3 +9,5 @@ export const arithmeticCommands = {
   or: true,
   not: true,
 };
+
+module.exports = { arithmeticCommands };

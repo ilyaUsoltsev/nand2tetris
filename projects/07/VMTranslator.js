@@ -1,7 +1,7 @@
-import Code from './Code.js';
-import Parser from './Parser.js';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { basename, extname, join, dirname } from 'path';
+const Code = require('./Code.js');
+const Parser = require('./Parser.js');
+const { readFileSync, writeFileSync, existsSync } = require('fs');
+const { basename, extname, join, dirname } = require('path');
 
 function main() {
   const fileName = process.argv[2];

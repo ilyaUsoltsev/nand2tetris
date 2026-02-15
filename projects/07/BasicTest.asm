@@ -178,10 +178,15 @@
     
 // pop temp 6 
 
+      @5
+      D=A
+      @processPopTemp
+      M=D
+    
       
       @6
       D=A
-      @5
+      @processPopTemp
       D=D+M
       @lcl_addr
       M=D
@@ -274,7 +279,7 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       M=D
       @SP
       M=M+1
@@ -340,17 +345,22 @@
       @SP
       M=M-1
       A=M
-      D=D-M
+      D=M-D
       M=D
       @SP
       M=M+1
     
 // push temp 6 
 
+      @5
+      D=A
+      @processPushTemp
+      M=D
+    
       
       @6
       D=A
-      @5
+      @processPushTemp
       D=D+M
       @lcl_addr
       M=D
