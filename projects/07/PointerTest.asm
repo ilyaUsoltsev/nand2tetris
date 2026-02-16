@@ -14,7 +14,7 @@
       M=M-1
       A=M
       D=M
-      @THAT
+      @THIS
       M=D
     
 // push constant 3040 
@@ -94,7 +94,7 @@
       
 // push pointer 0 
 
-      @THAT
+      @THIS
       D=M
       @SP
       A=M

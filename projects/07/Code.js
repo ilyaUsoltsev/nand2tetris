@@ -62,7 +62,7 @@ class Code {
   }
 
   processPushPointer(arg2) {
-    const segment = arg2 === 0 ? 'THIS' : 'THAT';
+    const segment = arg2 === '0' ? 'THIS' : 'THAT';
     return `
       @${segment}
       D=M
@@ -75,7 +75,7 @@ class Code {
   }
 
   processPopPointer(arg2) {
-    const segment = arg2 === 0 ? 'THIS' : 'THAT';
+    const segment = arg2 === '0' ? 'THIS' : 'THAT';
     return `
       @SP
       M=M-1
