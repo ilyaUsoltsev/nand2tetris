@@ -2,6 +2,7 @@ class Code {
   constructor(instructions, fileName) {
     this.instructions = instructions;
     this.fileName = fileName;
+    this.labelCounter = 0;
   }
 
   processInstructions() {
@@ -20,48 +21,52 @@ class Code {
   }
 
   processPush(arg1, arg2) {
-    let result = `// push ${arg1} ${arg2} \n`;
-    if (arg1 === 'constant') {
-      return (result += this.processPushConstant(arg2));
-    } else if (arg1 === 'local') {
-      return (result += this.processPushLocalArgThisThat('LCL', arg2));
-    } else if (arg1 === 'argument') {
-      return (result += this.processPushLocalArgThisThat('ARG', arg2));
-    } else if (arg1 === 'this') {
-      return (result += this.processPushLocalArgThisThat('THIS', arg2));
-    } else if (arg1 === 'that') {
-      return (result += this.processPushLocalArgThisThat('THAT', arg2));
-    } else if (arg1 === 'static') {
-      return (result += this.processPushStatic(arg2));
-    } else if (arg1 === 'temp') {
-      return (result += this.processPushTemp(arg2));
-    } else if (arg1 === 'pointer') {
-      return (result += this.processPushPointer(arg2));
+    const result = `// push ${arg1} ${arg2}\n`;
+
+    const handlers = {
+      'constant': () => this.processPushConstant(arg2),
+      'local': () => this.processPushLocalArgThisThat('LCL', arg2),
+      'argument': () => this.processPushLocalArgThisThat('ARG', arg2),
+      'this': () => this.processPushLocalArgThisThat('THIS', arg2),
+      'that': () => this.processPushLocalArgThisThat('THAT', arg2),
+      'static': () => this.processPushStatic(arg2),
+      'temp': () => this.processPushTemp(arg2),
+      'pointer': () => this.processPushPointer(arg2),
+    };
+
+    const handler = handlers[arg1];
+    if (!handler) {
+      throw new Error(`Invalid push with args: ${arg1} and ${arg2}`);
     }
-    throw new Error(`Invalid push with args: ${arg1} and ${arg2}`);
+
+    return result + handler();
   }
 
   processPop(arg1, arg2) {
-    let result = `// pop ${arg1} ${arg2} \n`;
-    if (arg1 === 'local') {
-      return (result += this.processPopLocalArgThisThat('LCL', arg2));
-    } else if (arg1 === 'argument') {
-      return (result += this.processPopLocalArgThisThat('ARG', arg2));
-    } else if (arg1 === 'this') {
-      return (result += this.processPopLocalArgThisThat('THIS', arg2));
-    } else if (arg1 === 'that') {
-      return (result += this.processPopLocalArgThisThat('THAT', arg2));
-    } else if (arg1 === 'static') {
-      return (result += this.processPopStatic(arg2));
-    } else if (arg1 === 'temp') {
-      return (result += this.processPopTemp(arg2));
-    } else if (arg1 === 'pointer') {
-      return (result += this.processPopPointer(arg2));
+    const result = `// pop ${arg1} ${arg2}\n`;
+
+    const handlers = {
+      'local': () => this.processPopLocalArgThisThat('LCL', arg2),
+      'argument': () => this.processPopLocalArgThisThat('ARG', arg2),
+      'this': () => this.processPopLocalArgThisThat('THIS', arg2),
+      'that': () => this.processPopLocalArgThisThat('THAT', arg2),
+      'static': () => this.processPopStatic(arg2),
+      'temp': () => this.processPopTemp(arg2),
+      'pointer': () => this.processPopPointer(arg2),
+    };
+
+    const handler = handlers[arg1];
+    if (!handler) {
+      throw new Error(`Invalid pop with args: ${arg1} and ${arg2}`);
     }
-    throw new Error(`Invalid pop with args: ${arg1} and ${arg2}`);
+
+    return result + handler();
   }
 
   processPushPointer(arg2) {
+    if (arg2 !== '0' && arg2 !== '1') {
+      throw new Error(`Invalid pointer index: ${arg2} (must be 0 or 1)`);
+    }
     const segment = arg2 === '0' ? 'THIS' : 'THAT';
     return `
       @${segment}
@@ -75,6 +80,9 @@ class Code {
   }
 
   processPopPointer(arg2) {
+    if (arg2 !== '0' && arg2 !== '1') {
+      throw new Error(`Invalid pointer index: ${arg2} (must be 0 or 1)`);
+    }
     const segment = arg2 === '0' ? 'THIS' : 'THAT';
     return `
       @SP
@@ -122,31 +130,41 @@ class Code {
   }
 
   processPushTemp(arg2) {
-    let result = `
-      @5
-      D=A
-      @processPushTemp
+    const index = parseInt(arg2);
+    if (index < 0 || index > 7) {
+      throw new Error(`Invalid temp index: ${arg2} (must be 0-7)`);
+    }
+    const address = 5 + index;
+    return `
+      @${address}
+      D=M
+      @SP
+      A=M
       M=D
+      @SP
+      M=M+1
     `;
-    return (result += this.processPushLocalArgThisThat(
-      'processPushTemp',
-      arg2,
-    ));
   }
 
   processPopTemp(arg2) {
-    let result = `
-      @5
-      D=A
-      @processPopTemp
+    const index = parseInt(arg2);
+    if (index < 0 || index > 7) {
+      throw new Error(`Invalid temp index: ${arg2} (must be 0-7)`);
+    }
+    const address = 5 + index;
+    return `
+      @SP
+      M=M-1
+      A=M
+      D=M
+      @${address}
       M=D
     `;
-    return (result += this.processPopLocalArgThisThat('processPopTemp', arg2));
   }
 
   processPopLocalArgThisThat(segment, i) {
     return `
-      ${this.getAddressOfSegementIElement(segment, i)}
+      ${this.getAddressOfSegmentIElement(segment, i)}
       @SP
       M=M-1
       A=M
@@ -159,7 +177,7 @@ class Code {
 
   processPushLocalArgThisThat(segment, i) {
     return `
-      ${this.getAddressOfSegementIElement(segment, i)}
+      ${this.getAddressOfSegmentIElement(segment, i)}
       @lcl_addr
       A=M
       D=M
@@ -171,7 +189,7 @@ class Code {
       `;
   }
 
-  getAddressOfSegementIElement(segment, i) {
+  getAddressOfSegmentIElement(segment, i) {
     return `
       @${i}
       D=A
@@ -183,32 +201,32 @@ class Code {
   }
 
   processArithmetic(arg1) {
-    let result = `// arithmetic: ${arg1} \n`;
-    if (arg1 === 'add') {
-      return (result += this.processOperator('+'));
-    } else if (arg1 === 'sub') {
-      return (result += this.processSub());
-    } else if (arg1 === 'neg') {
-      return (result += this.processSign('-'));
-    } else if (arg1 === 'eq') {
-      return (result += this.processComp('JEQ'));
-    } else if (arg1 === 'gt') {
-      return (result += this.processComp('JGT'));
-    } else if (arg1 === 'lt') {
-      return (result += this.processComp('JLT'));
-    } else if (arg1 === 'and') {
-      return (result += this.processOperator('&'));
-    } else if (arg1 === 'or') {
-      return (result += this.processOperator('|'));
-    } else if (arg1 === 'not') {
-      return (result += this.processSign('!'));
+    const result = `// arithmetic: ${arg1}\n`;
+
+    const handlers = {
+      'add': () => this.processOperator('+', false),
+      'sub': () => this.processOperator('-', true),
+      'neg': () => this.processSign('-'),
+      'eq': () => this.processComp('JEQ'),
+      'gt': () => this.processComp('JGT'),
+      'lt': () => this.processComp('JLT'),
+      'and': () => this.processOperator('&', false),
+      'or': () => this.processOperator('|', false),
+      'not': () => this.processSign('!'),
+    };
+
+    const handler = handlers[arg1];
+    if (!handler) {
+      throw new Error(`Invalid Arithmetic: ${arg1}`);
     }
-    throw new Error(`Invalid Arithmetic: ${arg1} `);
+
+    return result + handler();
   }
 
   processComp(condition) {
-    const trueAddress = `TRUE_${this.fileName}_${Math.random()}`;
-    const endProcessAddress = `END_${this.fileName}_${Math.random()}`;
+    const labelId = this.labelCounter++;
+    const trueAddress = `TRUE_${this.fileName}_${labelId}`;
+    const endProcessAddress = `END_${this.fileName}_${labelId}`;
     return `
       @SP
       M=M-1
@@ -248,7 +266,8 @@ class Code {
     `;
   }
 
-  processOperator(sign) {
+  processOperator(sign, reversed = false) {
+    const operation = reversed ? `M-D` : `D${sign}M`;
     return `
       @SP
       M=M-1
@@ -257,23 +276,7 @@ class Code {
       @SP
       M=M-1
       A=M
-      D=D${sign}M
-      M=D
-      @SP
-      M=M+1
-    `;
-  }
-
-  processSub() {
-    return `
-      @SP
-      M=M-1
-      A=M
-      D=M
-      @SP
-      M=M-1
-      A=M
-      D=M-D
+      D=${operation}
       M=D
       @SP
       M=M+1

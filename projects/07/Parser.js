@@ -35,7 +35,7 @@ class Parser {
 
   readLine(line) {
     const [first, second, third] = line.split(' ').filter((i) => i !== '');
-    const isArithmetic = arithmeticCommands[first];
+    const isArithmetic = arithmeticCommands.has(first);
     if (isArithmetic) {
       return {
         commandType: 'C_ARITHMETIC',
@@ -56,6 +56,8 @@ class Parser {
         arg2: third,
       };
     }
+
+    throw new Error(`Unknown command: ${first}`);
   }
 }
 

@@ -1,13 +1,13 @@
-const arithmeticCommands = {
-  add: true,
-  sub: true,
-  neg: true,
-  eq: true,
-  gt: true,
-  lt: true,
-  and: true,
-  or: true,
-  not: true,
-};
+const arithmeticCommands = new Set([
+  'add',
+  'sub',
+  'neg',
+  'eq',
+  'gt',
+  'lt',
+  'and',
+  'or',
+  'not',
+]);
 
 module.exports = { arithmeticCommands };

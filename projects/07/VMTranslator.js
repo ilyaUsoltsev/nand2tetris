@@ -34,7 +34,7 @@ function main() {
     const result = code.processInstructions();
 
     writeFileSync(outputFileName, result.join('\n'));
-    console.log(`Successfully assembled: ${outputFileName}`);
+    console.log(`Successfully translated: ${outputFileName}`);
   } catch (error) {
     console.error(`Error during assembly: ${error.message}`);
     process.exit(1);
