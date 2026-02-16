@@ -2,4 +2,4 @@ nand2tetris_material
 .vscode
 .DS_Store
 *.log
-.zip
+*.zip
