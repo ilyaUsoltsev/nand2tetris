@@ -138,7 +138,7 @@
       
       @lcl_addr
       A=M
-      M=D
+      D=M
       @SP
       A=M
       M=D
@@ -164,14 +164,14 @@
       
       @6
       D=A
-      @THIS
+      @THAT
       D=D+M
       @lcl_addr
       M=D
       
       @lcl_addr
       A=M
-      M=D
+      D=M
       @SP
       A=M
       M=D

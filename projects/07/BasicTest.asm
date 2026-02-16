@@ -223,7 +223,7 @@
       
       @5
       D=A
-      @THIS
+      @THAT
       D=D+M
       @lcl_addr
       M=D
