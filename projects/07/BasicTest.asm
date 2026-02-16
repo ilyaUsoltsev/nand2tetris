@@ -211,7 +211,7 @@
       
       @lcl_addr
       A=M
-      M=D
+      D=M
       @SP
       A=M
       M=D
@@ -230,7 +230,7 @@
       
       @lcl_addr
       A=M
-      M=D
+      D=M
       @SP
       A=M
       M=D
@@ -263,7 +263,7 @@
       
       @lcl_addr
       A=M
-      M=D
+      D=M
       @SP
       A=M
       M=D
@@ -296,7 +296,7 @@
       
       @lcl_addr
       A=M
-      M=D
+      D=M
       @SP
       A=M
       M=D
@@ -315,7 +315,7 @@
       
       @lcl_addr
       A=M
-      M=D
+      D=M
       @SP
       A=M
       M=D
@@ -367,7 +367,7 @@
       
       @lcl_addr
       A=M
-      M=D
+      D=M
       @SP
       A=M
       M=D

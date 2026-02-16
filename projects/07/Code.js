@@ -30,7 +30,7 @@ class Code {
     } else if (arg1 === 'this') {
       return (result += this.processPushLocalArgThisThat('THIS', arg2));
     } else if (arg1 === 'that') {
-      return (result += this.processPushLocalArgThisThat('THIS', arg2));
+      return (result += this.processPushLocalArgThisThat('THAT', arg2));
     } else if (arg1 === 'static') {
       return (result += this.processPushStatic(arg2));
     } else if (arg1 === 'temp') {
@@ -162,7 +162,7 @@ class Code {
       ${this.getAddressOfSegementIElement(segment, i)}
       @lcl_addr
       A=M
-      M=D
+      D=M
       @SP
       A=M
       M=D
