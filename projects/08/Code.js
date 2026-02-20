@@ -21,6 +21,12 @@ class Code {
         result.push(this.processGoTo(arg1));
       } else if (commandType === 'C_IF') {
         result.push(this.processIfGoTo(arg1));
+      } else if (commandType === 'C_FUNCTION') {
+        result.push(this.processFunction(arg1, arg2));
+      } else if (commandType === 'C_CALL') {
+        result.push(this.processCall(arg1, arg2));
+      } else if (commandType === 'C_RETURN') {
+        result.push(this.processReturn());
       }
     }
     return result;
@@ -310,6 +316,135 @@ class Code {
       D=M
       @${arg1}
       D;JGT
+    `;
+  }
+
+  processCall(functionName, numLocalVars) {
+    const goToFunctionName = this.processGoTo(functionName);
+    return `
+    // getting argument 0 position 
+    @SP
+    D=M
+    @${numLocalVars}
+    D=D-A
+    // pushing it to stack
+    @SP
+    A=M
+    M=D
+    @SP
+    M=M+1
+    // push LCL
+    @LCL
+    D=M
+    @SP
+    A=M
+    M=D
+    @SP
+    M=M+1
+    // push ARG
+    @ARG
+    D=M
+    @SP
+    A=M
+    M=D
+    @SP
+    M=M+1
+    // push THIS
+    @THIS
+    D=M
+    @SP
+    A=M
+    M=D
+    @SP
+    M=M+1
+    // push THAT
+    @THAT
+    D=M
+    @SP
+    A=M
+    M=D
+    @SP
+    M=M+1
+    // go to callee
+    ${goToFunctionName}
+    (${functionName}$ret.0)
+    `;
+  }
+
+  processFunction(functionName, numArgs) {
+    let pushZeroes = '';
+
+    for (let i = 0; i < numArgs; i++) {
+      pushZeroes += this.processPushConstant(0);
+      pushZeroes += this.processPopLocalArgThisThat('LCL', i);
+    }
+
+    return `
+      (${functionName})
+        ${pushZeroes}
+    `;
+  }
+
+  processReturn() {
+    return `
+      // frame = LCL
+      @LCL
+      D=M
+      @frame
+      M=D
+      // retAddr = *(frame-5)
+      @frame
+      A=M
+      D=M
+      @5
+      D=D-A
+      @retAddr
+      M=D
+      // *ARG=pop()
+      @SP
+      M=M-1
+      A=M
+      D=M
+      @ARG
+      A=M
+      M=D
+      // SP=ARG+1
+      @ARG
+      D=M+1
+      @SP
+      M=D
+      // THAT=*(frame-1)
+      @frame
+      M=M-1
+      A=M
+      D=M
+      @THAT
+      M=D
+      // THIS=*(frame-2)
+      @frame
+      M=M-1
+      A=M
+      D=M
+      @THIS
+      M=D
+      // ARG=*(frame-3)
+      @frame
+      M=M-1
+      A=M
+      D=M
+      @ARG
+      M=D
+      // LCL=*(frame-4)
+      @frame
+      M=M-1
+      A=M
+      D=M
+      @LCL
+      M=D
+      // goto retAddr
+      @retAddr
+      A=M
+      0;JMP
     `;
   }
 }

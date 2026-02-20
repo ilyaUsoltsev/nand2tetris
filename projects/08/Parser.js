@@ -74,6 +74,25 @@ class Parser {
         arg1: arg1,
       };
     }
+    if (first === 'function') {
+      return {
+        commandType: 'C_FUNCTION',
+        arg1: arg1,
+        arg2: arg2,
+      };
+    }
+    if (first === 'call') {
+      return {
+        commandType: 'C_CALL',
+        arg1: arg1,
+        arg2: arg2,
+      };
+    }
+    if (first === 'return') {
+      return {
+        commandType: 'C_RETURN',
+      };
+    }
 
     throw new Error(`Unknown command: ${(first, arg1, arg2)}`);
   }
