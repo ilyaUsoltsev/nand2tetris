@@ -185,10 +185,11 @@
       M=D
       // retAddr = *(frame-5)
       @frame
-      A=M
       D=M
       @5
       D=D-A
+      A=D
+      D=M
       @retAddr
       M=D
       // *ARG=pop()

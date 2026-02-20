@@ -1,8 +1,12 @@
 class Code {
-  constructor(instructions, fileName) {
+  constructor(instructions) {
     this.instructions = instructions;
-    this.fileName = fileName;
+    this.fileName = '';
     this.labelCounter = 0;
+  }
+
+  setFileName(fileName) {
+    this.fileName = fileName;
   }
 
   processInstructions() {
@@ -319,15 +323,12 @@ class Code {
     `;
   }
 
-  processCall(functionName, numLocalVars) {
-    const goToFunctionName = this.processGoTo(functionName);
+  processCall(functionName, nArgs) {
+    const returnLabel = `${functionName}$ret.${this.labelCounter++}`;
     return `
-    // getting argument 0 position 
-    @SP
-    D=M
-    @${numLocalVars}
-    D=D-A
-    // pushing it to stack
+    // push return address
+    @${returnLabel}
+    D=A
     @SP
     A=M
     M=D
@@ -365,9 +366,24 @@ class Code {
     M=D
     @SP
     M=M+1
-    // go to callee
-    ${goToFunctionName}
-    (${functionName}$ret.0)
+    // ARG = SP - 5 - nArgs
+    @SP
+    D=M
+    @5
+    D=D-A
+    @${nArgs}
+    D=D-A
+    @ARG
+    M=D
+    // LCL = SP
+    @SP
+    D=M
+    @LCL
+    M=D
+    // goto callee
+    @${functionName}
+    0;JMP
+    (${returnLabel})
     `;
   }
 
@@ -376,7 +392,6 @@ class Code {
 
     for (let i = 0; i < numArgs; i++) {
       pushZeroes += this.processPushConstant(0);
-      pushZeroes += this.processPopLocalArgThisThat('LCL', i);
     }
 
     return `
@@ -394,10 +409,11 @@ class Code {
       M=D
       // retAddr = *(frame-5)
       @frame
-      A=M
       D=M
       @5
       D=D-A
+      A=D
+      D=M
       @retAddr
       M=D
       // *ARG=pop()
