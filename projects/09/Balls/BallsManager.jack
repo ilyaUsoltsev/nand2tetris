@@ -1,0 +1,94 @@
+class BallsManager {
+    field int i;
+    field BallList ballsArray;
+    field Ball ball;
+    field int x, y, r, vx, vy;
+    field int length;
+    field int xSpread;
+    field int key;
+    field boolean keyIsSet;
+
+    constructor void new() {
+        let length = 20;
+        let ballsArray = BallList.new(length); // Initialize an array to hold 10 balls
+        let i = 0;
+        let xSpread = 25;
+        let keyIsSet = false;
+        let key = 0;
+        while (i < length) {
+            let x = 10 + (i * xSpread);
+            let y = 100;
+            let r = 10;
+            let vx = (10-i); // Vary the horizontal velocity based on the index
+            let vy = (10+i); // Vary the vertical velocity based on the index
+            let ball = Ball.new(x, y, r, vx, vy);
+            do ballsArray.push(ball); // Create a new ball with the specified parameters
+            let i = i + 1;
+        }
+        return this;
+    }
+
+    method void run() {
+        while (true) {
+            let i = 0;
+            
+            while (i < length) {
+                let ball = ballsArray.get(i);
+                if (~(ball = null)) {
+                    do ball.erase();
+                }
+                let i = i + 1;
+            }
+                let i = 0;
+            while (i < length) {
+                let ball = ballsArray.get(i);
+                if (~(ball = null)) {
+                    do ball.run();
+                }
+                let i = i + 1;
+            }
+
+            let key = Keyboard.keyPressed();
+
+            if((key = 131) & (~keyIsSet)) {
+                let ball = Ball.new(10, 100, 10, 5, 5);
+                do ballsArray.push(ball);
+                let length = length + 1;
+                let keyIsSet = true;
+            }
+
+
+            if((key = 133) & (~keyIsSet)) {
+                let ball = ballsArray.pop();
+                if (~(ball = null)) {
+                    do ball.erase();
+                    do ball.dispose();
+                }
+                let length = length - 1;
+                let keyIsSet = true;
+            }
+
+
+
+            if(key = 0) {
+                let keyIsSet = false;
+            }
+
+
+            do Sys.wait(50);
+        }
+        return;
+    }
+
+    method void dispose() {
+        let i = 0;
+        while (i < length) {
+            let ball = ballsArray.get(i);
+            if (~(ball = null)) {
+                do ball.dispose();
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+}

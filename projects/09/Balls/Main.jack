@@ -1,0 +1,9 @@
+class Main {
+    function void main() {
+        var BallsManager ballsManager;
+        let ballsManager = BallsManager.new();
+        do ballsManager.run();
+        do ballsManager.dispose();
+        return;
+    }
+}

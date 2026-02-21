@@ -1,0 +1,45 @@
+class Draw {
+    field int x, y, size;
+    field boolean isDrawing;
+
+    constructor void new() {
+        let x = 0;
+        let y = 0;
+        let size = 0;
+        let isDrawing = false;
+        return this;
+    }
+
+    method void setPosition(int ax, int ay) {
+        let x = ax;
+        let y = ay;
+        return;
+    }
+
+    method void setSize(int asize) {
+        let size = asize;
+        return;
+    }
+
+    method void draw() {
+      // Draws the circle using the color black
+      do Screen.setColor(true);
+      do Screen.drawCircle(x, y, size);
+      return;
+   }
+
+   /** Erases this circle. */
+   method void erase() {
+      // Draws the circle using the color white (background color)
+      do Screen.setColor(false);
+      do Screen.drawCircle(x, y, size);
+      return;
+   }
+
+    method void dispose() {
+        // This method will be called to clean up resources when the drawing is done.
+        // You can implement any necessary cleanup logic here.
+        do Memory.deAlloc(this);
+        return;
+    }
+}

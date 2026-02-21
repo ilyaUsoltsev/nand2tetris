@@ -1,0 +1,63 @@
+class BallList {
+    field Array data;
+    field int count;
+    field int capacity;
+
+    constructor BallList new(int cap) {
+        let capacity = cap;
+        let data = Array.new(capacity);
+        let count = 0;
+        return this;
+    }
+
+    method Ball get(int i) {
+        var Ball b;
+        if ((i < 0) | (i > (count-1))) {
+            return null;  
+        }
+        let b = data[i];
+        return b;
+    }
+
+    method void push(Ball b) {
+        if (count = capacity) {
+            do resize();
+        }
+
+        let data[count] = b;
+        let count = count + 1;
+        return;
+    }
+
+    method Ball pop() {
+        var Ball b;
+
+        if (count = 0) {
+            return null;  
+        }
+
+        let count = count - 1;
+        let b = data[count];
+
+        return b;
+    }
+
+    method void resize() {
+        var Array newArr;
+        var int i;
+
+        let capacity = capacity * 2;
+        let newArr = Array.new(capacity);
+
+        let i = 0;
+        while (i < count) {
+            let newArr[i] = data[i];
+            let i = i + 1;
+        }
+
+        do data.dispose();
+        let data = newArr;
+        return;
+    }
+
+}
