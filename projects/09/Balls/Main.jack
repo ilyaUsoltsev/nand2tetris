@@ -1,3 +1,16 @@
+/**
+
+This is the main class for the Balls project. It initializes the BallsManager and starts the simulation.
+
+The idea of this project is to create a simple animation of bouncing balls on the screen. 
+The BallsManager class is responsible for managing the balls, including their creation, movement, and rendering. 
+The Main class serves as the entry point for the program, where it initializes the BallsManager and starts the animation loop.
+
+User can add new balls by pressing the Up key, and the count of balls is displayed on the screen.
+User can remove the most recently added ball by pressing the Down key. 
+
+*/
+
 class Main {
     function void main() {
         var BallsManager ballsManager;

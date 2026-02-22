@@ -1,3 +1,9 @@
+/**
+ The Draw class represents a drawable circle on the screen. 
+ The class provides methods to set the position and size of the circle, 
+ draw it on the screen, erase it, and dispose of the object when it is no longer needed.
+*/
+
 class Draw {
     field int x, y, size;
     field boolean isDrawing;
@@ -22,23 +28,18 @@ class Draw {
     }
 
     method void draw() {
-      // Draws the circle using the color black
       do Screen.setColor(true);
       do Screen.drawCircle(x, y, size);
       return;
    }
 
-   /** Erases this circle. */
    method void erase() {
-      // Draws the circle using the color white (background color)
       do Screen.setColor(false);
       do Screen.drawCircle(x, y, size);
       return;
    }
 
     method void dispose() {
-        // This method will be called to clean up resources when the drawing is done.
-        // You can implement any necessary cleanup logic here.
         do Memory.deAlloc(this);
         return;
     }

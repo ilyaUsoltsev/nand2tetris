@@ -1,3 +1,8 @@
+/**
+BallsManager is responsible for managing the balls in the simulation. 
+It handles the creation, movement, and rendering of the balls, as well as user input for adding and removing balls.
+*/
+
 class BallsManager {
     field int i;
     field BallList ballsArray;
@@ -9,20 +14,24 @@ class BallsManager {
     field boolean keyIsSet;
 
     constructor void new() {
-        let length = 20;
-        let ballsArray = BallList.new(length); // Initialize an array to hold 10 balls
+        // Initialize the ball manager with three balls
+        let length = 3;
+        let ballsArray = BallList.new(length); 
         let i = 0;
         let xSpread = 25;
         let keyIsSet = false;
         let key = 0;
+        do showCount();
+
+        // poulate the ball list with initial balls
         while (i < length) {
             let x = 10 + (i * xSpread);
             let y = 100;
             let r = 10;
-            let vx = (10-i); // Vary the horizontal velocity based on the index
-            let vy = (10+i); // Vary the vertical velocity based on the index
+            let vx = (10-i); 
+            let vy = (10+i); 
             let ball = Ball.new(x, y, r, vx, vy);
-            do ballsArray.push(ball); // Create a new ball with the specified parameters
+            do ballsArray.push(ball); 
             let i = i + 1;
         }
         return this;
@@ -51,10 +60,14 @@ class BallsManager {
             let key = Keyboard.keyPressed();
 
             if((key = 131) & (~keyIsSet)) {
-                let ball = Ball.new(10, 100, 10, 5, 5);
-                do ballsArray.push(ball);
-                let length = length + 1;
-                let keyIsSet = true;
+                // limit the number of balls to 50 to prevent performance issues
+                if (length < 50) { 
+                    let ball = Ball.new(100+length, 40+length, 10, -length+5, -length+8); 
+                    do ballsArray.push(ball);
+                    let length = length + 1;
+                    let keyIsSet = true;
+                    do showCount();
+                }
             }
 
 
@@ -64,16 +77,16 @@ class BallsManager {
                     do ball.erase();
                     do ball.dispose();
                 }
-                let length = length - 1;
+                if (length > 0) {
+                    let length = length - 1;
+                }
                 let keyIsSet = true;
+                do showCount();
             }
-
-
 
             if(key = 0) {
                 let keyIsSet = false;
             }
-
 
             do Sys.wait(50);
         }
@@ -89,6 +102,13 @@ class BallsManager {
             }
             let i = i + 1;
         }
+        return;
+    }
+
+    method void showCount() {
+        do Output.moveCursor(2, 7);
+        do Output.printString("Use Up/Down. Ball count: ");
+        do Output.printInt(length);
         return;
     }
 }

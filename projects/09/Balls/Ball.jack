@@ -1,7 +1,16 @@
+/**
+ Ball class represents a single ball in the animation. 
+ It maintains the ball's position, velocity, and size, 
+ and provides methods to update its position based on its velocity, 
+ handle collisions with the boundaries of the screen, 
+ and draw itself on the screen using a Draw object.
+*/
+
+
 class Ball {
     field Draw draw;
     field int x, y, r;
-    field int vx, vy, prevVy;
+    field int vx, vy;
     field int velocityFactor;
 
     constructor Ball new(int Ax, int Ay, int Ar, int Avx, int Avy) {
@@ -11,7 +20,6 @@ class Ball {
         let r = Ar;
         let vx = Avx;
         let vy = Avy;
-        let prevVy = Avy;
         let draw = Draw.new();
         do draw.setPosition(x, y);
         do draw.setSize(r);
@@ -19,19 +27,6 @@ class Ball {
         return this;
     }
 
-    method void setYVelocity(int Avy) {
-        let prevVy = vy;
-        let vy = Avy;
-        return;
-    }
-
-    method int getPrevYVelocity() {
-        return prevVy;
-    }
-
-    method int getYVelocity() {
-        return vy;
-    }
 
     method void run() {
    

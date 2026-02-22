@@ -1,9 +1,9 @@
 function Ball.new 0
-    push constant 8
+    push constant 7
     call Memory.alloc 1
     pop pointer 0
     push constant 1
-    pop this 7
+    pop this 6
     push argument 0
     pop this 1
     push argument 1
@@ -14,8 +14,6 @@ function Ball.new 0
     pop this 4
     push argument 4
     pop this 5
-    push argument 4
-    pop this 6
     call Draw.new 0
     pop this 0
     push this 0
@@ -29,25 +27,6 @@ function Ball.new 0
     pop temp 0
     push pointer 0
     return
-function Ball.setYVelocity 0
-    push argument 0
-    pop pointer 0
-    push this 5
-    pop this 6
-    push argument 1
-    pop this 5
-    push constant 0
-    return
-function Ball.getPrevYVelocity 0
-    push argument 0
-    pop pointer 0
-    push this 6
-    return
-function Ball.getYVelocity 0
-    push argument 0
-    pop pointer 0
-    push this 5
-    return
 function Ball.run 0
     push argument 0
     pop pointer 0
@@ -58,13 +37,13 @@ function Ball.run 0
     pop temp 0
     push this 1
     push this 4
-    push this 7
+    push this 6
     call Math.multiply 2
     add
     pop this 1
     push this 2
     push this 5
-    push this 7
+    push this 6
     call Math.multiply 2
     add
     pop this 2
@@ -86,7 +65,7 @@ function Ball.run 0
     pop this 4
     push this 1
     push this 4
-    push this 7
+    push this 6
     call Math.multiply 2
     add
     pop this 1
@@ -111,7 +90,7 @@ label Ball_0
     pop this 5
     push this 2
     push this 5
-    push this 7
+    push this 6
     call Math.multiply 2
     add
     pop this 2

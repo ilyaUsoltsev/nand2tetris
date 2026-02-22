@@ -1,3 +1,10 @@
+/**
+ BallList class adds dynamic resizing capabilities to an array of Ball objects. 
+ It maintains a count of the current number of balls and the total capacity of the array. 
+ The class provides methods to get a ball at a specific index, push a new ball onto the list, 
+ pop the last ball from the list, and resize the array when necessary. 
+*/
+
 class BallList {
     field Array data;
     field int count;
