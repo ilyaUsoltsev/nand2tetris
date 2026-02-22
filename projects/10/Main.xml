@@ -1,0 +1,83 @@
+<class>
+    <keyword> class </keyword>
+    <identifier> Main </identifier>
+    <symbol> { </symbol>
+    <classVarDec>
+        <keyword> static </keyword>
+        <keyword> boolean </keyword>
+        <identifier> test </identifier>
+        <symbol> ; </symbol>
+    </classVarDec>
+    <subroutineDec>
+        <keyword> function </keyword>
+        <keyword> void </keyword>
+        <identifier> main </identifier>
+        <symbol> ( </symbol>
+        <parameterList>
+            <keyword> int </keyword>
+            <identifier> REMOVE </identifier>
+            <symbol> , </symbol>
+            <keyword> int </keyword>
+            <identifier> Remove </identifier>
+        </parameterList>
+        <symbol> ) </symbol>
+    </subroutineDec>
+    <symbol> { </symbol>
+    <symbol> ; </symbol>
+    <symbol> = </symbol>
+    <symbol> . </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> . </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> . </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> ; </symbol>
+    <symbol> } </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> { </symbol>
+    <symbol> , </symbol>
+    <symbol> ; </symbol>
+    <symbol> ; </symbol>
+    <symbol> ; </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> { </symbol>
+    <symbol> = </symbol>
+    <symbol> ; </symbol>
+    <symbol> = </symbol>
+    <symbol> ; </symbol>
+    <symbol> [ </symbol>
+    <symbol> ] </symbol>
+    <symbol> = </symbol>
+    <symbol> [ </symbol>
+    <symbol> ] </symbol>
+    <symbol> ; </symbol>
+    <symbol> } </symbol>
+    <symbol> { </symbol>
+    <symbol> = </symbol>
+    <symbol> * </symbol>
+    <symbol> ( </symbol>
+    <symbol> - </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> = </symbol>
+    <symbol> / </symbol>
+    <symbol> ( </symbol>
+    <symbol> - </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> = </symbol>
+    <symbol> | </symbol>
+    <symbol> ; </symbol>
+    <symbol> } </symbol>
+    <symbol> ; </symbol>
+    <symbol> } </symbol>
+    <symbol> } </symbol>
+</class>
