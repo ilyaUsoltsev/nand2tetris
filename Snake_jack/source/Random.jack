@@ -1,0 +1,20 @@
+class Random {
+  static int seed;
+
+  function void init(int s){
+    let seed = s;
+    return;
+  }
+
+  function int next(int max){
+    let seed = seed + 20251;
+    let seed = seed * 32719;
+    let seed = seed + 3;
+
+    if (seed < 0){
+      let seed = -seed;
+    }
+
+    return seed - ((seed / max) * max);
+  }
+}

@@ -1,0 +1,80 @@
+class SnakeBody {
+  field SnakeBody next;
+  field int x, y, size, offset;
+
+  constructor SnakeBody new(int x_, int y_){
+    let size = 25;
+
+    let x = x_;
+    let y = y_;
+
+    let next = null;
+
+    do draw();
+
+    return this;
+  }
+
+  method void setNext(SnakeBody n){
+    let next = n;
+    return;
+  }
+
+  method SnakeBody getNext(){
+    return next;
+  }
+
+  method int getX(){
+    return x;
+  }
+
+  method int getY(){
+    return y;
+  }
+
+  method void setPosition(int newX, int newY){
+    if ((newX = x) & (newY = y)){
+      return;
+    }
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(x, y, x + size, y + size);
+
+    let x = newX;
+    let y = newY;
+
+    do draw();
+
+    return;
+  }
+
+
+  method void safeDraw(int x1, int y1, int x2, int y2){
+    if (x1 < 0){
+      let x1 = 0;
+    }
+    if (y1 < 0){
+      let y1 = 0;
+    }
+    if (x2 > 511){
+      let x2 = 511;
+    }
+    if (y2 > 255){
+      let y2 = 255;
+    }
+
+
+    if ((x1 < x2) & (y1 < y2)){
+      do Screen.drawRectangle(x1, y1, x2, y2);
+    }
+
+    return;
+  }
+
+  method void draw(){
+    do Screen.setColor(true);
+    do safeDraw(x, y, x + size, y + size);
+
+    return;
+  }
+}

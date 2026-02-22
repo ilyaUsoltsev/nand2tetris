@@ -1,0 +1,51 @@
+class Food {
+  field int x, y, size, timer;
+
+  constructor Food new(){
+    let size = 25;
+
+    do spawn();
+
+    return this;
+  }
+
+  method void spawn(){
+    if ((x + size) > 0){
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+    }
+
+    let x = Random.next(16) * 30;
+    let y = Random.next(7) * 30;
+    let timer = Random.next(27);
+
+    do draw();
+
+    return;
+  }
+
+  method void draw(){
+    do Screen.setColor(true);
+    do Screen.drawRectangle(x, y, x + size, y + size);
+
+    return;
+  }
+
+  method int getX(){
+    return x;
+  }
+
+  method int getY(){
+    return y;
+  }
+
+  method void tick(){
+    let timer = timer - 1;
+
+    if (timer < 1){
+      do spawn();
+    }
+
+    return;
+  }
+}

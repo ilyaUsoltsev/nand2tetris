@@ -1,0 +1,102 @@
+function Food.new 0
+push constant 4
+call Memory.alloc 1
+pop pointer 0
+push constant 25
+pop this 2
+push pointer 0
+call Food.spawn 1
+pop temp 0
+push pointer 0
+return
+function Food.spawn 0
+push argument 0
+pop pointer 0
+push this 0
+push this 2
+add
+push constant 0
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push this 0
+push this 1
+push this 0
+push this 2
+add
+push this 1
+push this 2
+add
+call Screen.drawRectangle 4
+pop temp 0
+label IF_FALSE0
+push constant 16
+call Random.next 1
+push constant 30
+call Math.multiply 2
+pop this 0
+push constant 7
+call Random.next 1
+push constant 30
+call Math.multiply 2
+pop this 1
+push constant 27
+call Random.next 1
+pop this 3
+push pointer 0
+call Food.draw 1
+pop temp 0
+push constant 0
+return
+function Food.draw 0
+push argument 0
+pop pointer 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push this 0
+push this 1
+push this 0
+push this 2
+add
+push this 1
+push this 2
+add
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+return
+function Food.getX 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Food.getY 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Food.tick 0
+push argument 0
+pop pointer 0
+push this 3
+push constant 1
+sub
+pop this 3
+push this 3
+push constant 1
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+call Food.spawn 1
+pop temp 0
+label IF_FALSE0
+push constant 0
+return

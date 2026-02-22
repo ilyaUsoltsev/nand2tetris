@@ -1,0 +1,229 @@
+class Snake {
+  field int x, y, size, direction;
+  field int lastTailX, lastTailY;
+  field SnakeBody body;
+
+  constructor Snake new(){
+    let x = 240;
+    let y = 120;
+    let size = 25;
+    let direction = 0;
+
+    let lastTailX = x;
+    let lastTailY = y + 30;
+
+    do draw();
+
+    return this;
+  }
+
+  method void grow(){
+    var SnakeBody current;
+    var SnakeBody newSegment;
+    var int tailX, tailY, newX, newY;
+
+
+    if (body = null){
+      let tailX = x;
+      let tailY = y;
+
+    } else {
+      let current = body;
+
+      while (~(current.getNext() = null)){
+        let current = current.getNext();
+      }
+
+      let tailX = current.getX();
+      let tailY = current.getY();
+    }
+
+
+    if (direction = 0){
+      let newSegment = SnakeBody.new(tailX, tailY + 30);
+    }
+    if (direction = 1){
+      let newSegment = SnakeBody.new(tailX, tailY + 30);
+    }
+    if (direction = 2){
+      let newSegment = SnakeBody.new(tailX, tailY - 30);
+    }
+    if (direction = 3){
+      let newSegment = SnakeBody.new(tailX + 30, tailY);
+    }
+    if (direction = 4){
+      let newSegment = SnakeBody.new(tailX - 30, tailY);
+    }
+
+    if (newX < 0){
+      let newX = 0;
+    }
+
+    if (newY < 0){
+      let newY = 0;
+    }
+
+    if ((newX + size) > 511){
+      let newX = 511 - size;
+    }
+
+    if ((newY + size) > 255){
+      let newY = 255 - size;
+    }
+
+    if (body = null){
+      let body = newSegment;
+    } else {
+      do current.setNext(newSegment);
+    }
+
+    return;
+  }
+
+
+  method void safeDraw(int x1, int y1, int x2, int y2){
+    if (x1 < 0){
+      let x1 = 0;
+    }
+    if (y1 < 0){
+      let y1 = 0;
+    }
+    if (x2 > 511){
+      let x2 = 511;
+    }
+    if (y2 > 255){
+      let y2 = 255;
+    }
+
+
+    if ((x1 < x2) & (y1 < y2)){
+      do Screen.drawRectangle(x1, y1, x2, y2);
+    }
+
+    return;
+  }
+  method void draw(){
+    do Screen.setColor(true);
+    do safeDraw(x, y, x + size, y + size);
+
+    return;
+  }
+
+  method void setDirection(int d){
+    let direction = d;
+    return;
+  }
+
+  method int getX(){
+    return x;
+  }
+
+  method int getY(){
+    return y;
+  }
+
+
+  method int getDirection(){
+    return direction;
+  }
+
+  method void move(){
+    var int prevX, prevY, tempX, tempY;
+    var SnakeBody current;
+
+    let prevX = x;
+    let prevY = y;
+
+    if (direction = 1){
+      do moveUp();
+    }
+    if (direction = 2){
+      do moveDown();
+    }
+    if (direction = 3){
+      do moveLeft();
+    }
+    if (direction = 4){
+      do moveRight();
+    }
+
+    if ((x = prevX) & (y = prevY)){
+      return;
+    }
+
+    let current = body;
+
+    while (~(current = null)){
+      let tempX = current.getX();
+      let tempY = current.getY();
+
+      do current.setPosition(prevX, prevY);
+
+      let prevX = tempX;
+      let prevY = tempY;
+      let current = current.getNext();
+    }
+
+    let lastTailX = prevX;
+    let lastTailY = prevY;
+
+    return;
+
+  }
+
+  method void moveUp(){
+    if (y > 29){
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+
+      let y = y - 30;
+
+      do draw();
+    }
+    return;
+  }
+
+  method void moveDown(){
+    if ((y + size + 30) < 255){
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+
+      let y = y + 30;
+
+      do draw();
+    }
+
+    return;
+  }
+
+  method void moveLeft(){
+    if (x > 29){
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+
+      let x = x - 30;
+
+      do draw();
+    }
+
+    return;
+  }
+
+  method void moveRight(){
+    if ((x + size + 30) < 511){
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+
+      let x = x + 30;
+
+      do draw();
+    }
+
+    return;
+  }
+
+  method void dispose(){
+    do Memory.deAlloc(this);
+    return;
+  }
+}
