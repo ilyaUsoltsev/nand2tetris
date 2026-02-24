@@ -78,8 +78,45 @@ class CompilationEngine {
       this.processParameterList();
       this.advance();
       this.processSymbol(')');
+      this.processSubroutineBody();
     }
     this.result.push('</subroutineDec>');
+  }
+
+  processSubroutineBody() {
+    this.result.push('<subroutineBody>');
+    this.advance();
+    this.processSymbol('{');
+    this.processVarDec();
+    this.processStatements();
+    this.result.push('</subroutineBody>');
+  }
+
+  processStatements() {
+    this.result.push('<statements>');
+    // CONTINUE with statements here
+    this.result.push('</statements>');
+  }
+
+  processVarDec() {
+    this.result.push('<varDec>');
+    while (this.peek().value === 'var') {
+      this.advance();
+      this.result.push(this.currentToken);
+      this.advance();
+      this.processType();
+      this.advance();
+      this.processName();
+      while (this.peek().value === ',') {
+        this.advance();
+        this.processSymbol(',');
+        this.advance();
+        this.processName();
+      }
+      this.advance();
+      this.processSymbol(';');
+    }
+    this.result.push('</varDec>');
   }
 
   processClassVarDec() {
