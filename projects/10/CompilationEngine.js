@@ -1,7 +1,7 @@
 class CompilationEngine {
   constructor(tokens) {
     this.tokens = tokens;
-    this.indentationLevel = 0;
+    this.indentation = 0;
     this.tokenCount = 0;
     this.currentToken = this.tokens[0];
     this.result = [];
@@ -13,7 +13,8 @@ class CompilationEngine {
   }
 
   run() {
-    this.result.push('<class>');
+    this.addToResult('<class>');
+    this.indentation++;
     while (this.tokenCount < this.tokens.length) {
       const { type, value } = this.processToken(this.currentToken);
       if (type === 'keyword') {
@@ -23,14 +24,15 @@ class CompilationEngine {
       }
       this.advance();
     }
-    this.result.push('</class>');
+    this.indentation--;
+    this.addToResult('</class>');
     return this.result;
   }
 
   processKeyword(type, value) {
     const result = [];
     if (value === 'class') {
-      this.result.push(this.currentToken); // push <keyword>class</keyword>
+      this.addToResult(this.currentToken); // push <keyword>class</keyword>
       this.advance();
       this.processName(); // push class name e.g. Main
       this.advance();
@@ -42,7 +44,7 @@ class CompilationEngine {
   }
 
   processParameterList() {
-    this.result.push('<parameterList>');
+    this.addToResult('<parameterList>');
     while (this.isType(this.peek().token)) {
       this.advance();
       this.processType();
@@ -57,18 +59,19 @@ class CompilationEngine {
         this.processName();
       }
     }
-    this.result.push('</parameterList>');
+    this.addToResult('</parameterList>');
   }
 
   processSubroutineDec() {
-    this.result.push('<subroutineDec>');
+    this.addToResult('<subroutineDec>');
+    this.indentation++;
     while (
       this.peek().value === 'constructor' ||
       this.peek().value === 'function' ||
       this.peek().value === 'method'
     ) {
       this.advance();
-      this.result.push(this.currentToken); // push function/method/constructor
+      this.addToResult(this.currentToken); // push function/method/constructor
       this.advance();
       this.processTypeOrVoid();
       this.advance();
@@ -80,29 +83,83 @@ class CompilationEngine {
       this.processSymbol(')');
       this.processSubroutineBody();
     }
-    this.result.push('</subroutineDec>');
+    this.indentation--;
+    this.addToResult('</subroutineDec>');
   }
 
   processSubroutineBody() {
-    this.result.push('<subroutineBody>');
+    this.addToResult('<subroutineBody>');
+    this.indentation++;
     this.advance();
     this.processSymbol('{');
     this.processVarDec();
     this.processStatements();
-    this.result.push('</subroutineBody>');
+    this.indentation--;
+    this.addToResult('</subroutineBody>');
   }
 
   processStatements() {
-    this.result.push('<statements>');
-    // CONTINUE with statements here
-    this.result.push('</statements>');
+    this.addToResult('<statements>');
+    this.indentation++;
+    const { value } = this.peek();
+    if (value === 'let') {
+      this.processLetStatement();
+    } else if (value === 'if') {
+      this.processIfStatement();
+    } else if (value === 'while') {
+      this.processWhileStatement();
+    } else if (value === 'do') {
+      this.processDoStatement();
+    } else if (value === 'return') {
+      this.processReturnStatement();
+    } else {
+      throw new Error(`Unknown statement ${value}`);
+    }
+    this.indentation--;
+    this.addToResult('</statements>');
+  }
+
+  processLetStatement() {
+    this.addToResult('<letStatement>');
+    this.indentation++;
+
+    this.advance();
+    this.addToResult(this.currentToken); // let token
+    this.advance();
+    this.processName();
+
+    // [expression]
+    while (this.peek().value === '[') {
+      this.advance();
+      this.processSymbol('[');
+      this.processExpression();
+      this.advance();
+      this.processSymbol(']');
+    }
+    this.advance();
+    this.processSymbol('=');
+    this.processExpression();
+    this.advance();
+    this.processSymbol(';');
+
+    this.indentation--;
+    this.addToResult('</letStatement>');
+  }
+  processIfStatement() {}
+  processWhileStatement() {}
+  processDoStatement() {}
+  processReturnStatement() {}
+
+  processExpression() {
+    // continue with expression
   }
 
   processVarDec() {
-    this.result.push('<varDec>');
+    this.addToResult('<varDec>');
+    this.indentation++;
     while (this.peek().value === 'var') {
       this.advance();
-      this.result.push(this.currentToken);
+      this.addToResult(this.currentToken);
       this.advance();
       this.processType();
       this.advance();
@@ -116,14 +173,16 @@ class CompilationEngine {
       this.advance();
       this.processSymbol(';');
     }
-    this.result.push('</varDec>');
+    this.indentation--;
+    this.addToResult('</varDec>');
   }
 
   processClassVarDec() {
-    this.result.push('<classVarDec>');
+    this.addToResult('<classVarDec>');
+    this.indentation++;
     while (this.peek().value === 'static' || this.peek().value === 'field') {
       this.advance();
-      this.result.push(this.currentToken); // push static / field keyword
+      this.addToResult(this.currentToken); // push static / field keyword
       this.advance();
       this.processType();
       this.advance();
@@ -137,13 +196,14 @@ class CompilationEngine {
       this.advance();
       this.processSymbol(';');
     }
-    this.result.push('</classVarDec>');
+    this.indentation--;
+    this.addToResult('</classVarDec>');
   }
 
   processTypeOrVoid() {
     const { value, type } = this.processToken(this.currentToken);
     if (value === 'void') {
-      this.result.push(this.currentToken);
+      this.addToResult(this.currentToken);
     } else {
       try {
         this.processType();
@@ -155,7 +215,7 @@ class CompilationEngine {
 
   processType() {
     if (this.isType(this.currentToken)) {
-      this.result.push(this.currentToken);
+      this.addToResult(this.currentToken);
     } else {
       throw new Error(`Error in processType ${type} ${value}`);
     }
@@ -171,7 +231,7 @@ class CompilationEngine {
     if (value !== symbol) {
       throw new Error(`Problem with symbol "${symbol}"- we expect one`);
     }
-    this.result.push(this.currentToken);
+    this.addToResult(this.currentToken);
   }
 
   processName() {
@@ -179,7 +239,7 @@ class CompilationEngine {
     if (type !== 'identifier') {
       throw new Error('There must be indentifier after class keyword');
     }
-    this.result.push(this.currentToken);
+    this.addToResult(this.currentToken);
   }
 
   processToken(token) {
@@ -211,6 +271,11 @@ class CompilationEngine {
       value === 'boolean' ||
       type === 'identifier'
     );
+  }
+
+  addToResult(token) {
+    const indentation = '  '.repeat(this.indentation);
+    this.result.push(`${indentation}${token}`);
   }
 }
 
