@@ -151,7 +151,57 @@ class CompilationEngine {
   processReturnStatement() {}
 
   processExpression() {
-    // continue with expression
+    this.addToResult('<expression>');
+    this.indentation++;
+    this.processTerm();
+
+    this.addToResult('</expression>');
+  }
+
+  processTerm() {
+    this.addToResult('<term>');
+    this.indentation++;
+    this.advance();
+    const { type, value } = this.processToken(this.currentToken);
+    if (
+      type === 'integerConstant' ||
+      type === 'stringConstant' ||
+      type === 'keyword' // not <keywordConstant
+    ) {
+      this.result.push(this.currentToken);
+    } else if (
+      type === 'identifier' &&
+      this.peek().type !== 'symbol' &&
+      this.peek().value !== '['
+    ) {
+      this.processName();
+    } else if (
+      type === 'identifier' &&
+      this.peek().type === 'symbol' &&
+      this.peek().value === '['
+    ) {
+      this.processName();
+      this.advance();
+      this.processSymbol('[');
+      this.processExpression();
+      this.advance();
+      this.processSymbol(']');
+    } else if (type === 'symbol' && value === '(') {
+      this.processSymbol('(');
+      this.processExpression();
+      this.advance();
+      this.processSymbol(')');
+    } else if (type === 'symbol' && (value === '-' || value === '~')) {
+      this.processSymbol(); // not <unaryOp
+      this.processTerm();
+    } else if (type === 'identifier' && ) { 
+      // CONTINUE HERE WITH subroutineCall
+    }
+    else {
+      throw new Error(`Error in expression ${value} - ${type}`);
+    }
+
+    this.addToResult('<term>');
   }
 
   processVarDec() {

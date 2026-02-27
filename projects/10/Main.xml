@@ -28,63 +28,63 @@
         <letStatement>
           <keyword> let </keyword>
           <identifier> game </identifier>
-        </letStatement>
-      </statements>
-    </subroutineBody>
-  </subroutineDec>
-  <symbol> . </symbol>
-  <symbol> ( </symbol>
-  <symbol> ) </symbol>
-  <symbol> ; </symbol>
-  <symbol> . </symbol>
-  <symbol> ( </symbol>
-  <symbol> ) </symbol>
-  <symbol> ; </symbol>
-  <symbol> . </symbol>
-  <symbol> ( </symbol>
-  <symbol> ) </symbol>
-  <symbol> ; </symbol>
-  <symbol> ; </symbol>
-  <symbol> } </symbol>
-  <symbol> ( </symbol>
-  <symbol> ) </symbol>
-  <symbol> { </symbol>
-  <symbol> , </symbol>
-  <symbol> ; </symbol>
-  <symbol> ; </symbol>
-  <symbol> ; </symbol>
-  <symbol> ( </symbol>
-  <symbol> ) </symbol>
-  <symbol> { </symbol>
-  <symbol> = </symbol>
-  <symbol> ; </symbol>
-  <symbol> = </symbol>
-  <symbol> ; </symbol>
-  <symbol> [ </symbol>
-  <symbol> ] </symbol>
-  <symbol> = </symbol>
-  <symbol> [ </symbol>
-  <symbol> ] </symbol>
-  <symbol> ; </symbol>
-  <symbol> } </symbol>
-  <symbol> { </symbol>
-  <symbol> = </symbol>
-  <symbol> * </symbol>
-  <symbol> ( </symbol>
-  <symbol> - </symbol>
-  <symbol> ) </symbol>
-  <symbol> ; </symbol>
-  <symbol> = </symbol>
-  <symbol> / </symbol>
-  <symbol> ( </symbol>
-  <symbol> - </symbol>
-  <symbol> ) </symbol>
-  <symbol> ; </symbol>
-  <symbol> = </symbol>
-  <symbol> | </symbol>
-  <symbol> ; </symbol>
-  <symbol> } </symbol>
-  <symbol> ; </symbol>
-  <symbol> } </symbol>
-  <symbol> } </symbol>
-</class>
+          <symbol> = </symbol>
+        </statements>
+      </subroutineBody>
+    </subroutineDec>
+    <symbol> . </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> . </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> . </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> ; </symbol>
+    <symbol> } </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> { </symbol>
+    <symbol> , </symbol>
+    <symbol> ; </symbol>
+    <symbol> ; </symbol>
+    <symbol> ; </symbol>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <symbol> { </symbol>
+    <symbol> = </symbol>
+    <symbol> ; </symbol>
+    <symbol> = </symbol>
+    <symbol> ; </symbol>
+    <symbol> [ </symbol>
+    <symbol> ] </symbol>
+    <symbol> = </symbol>
+    <symbol> [ </symbol>
+    <symbol> ] </symbol>
+    <symbol> ; </symbol>
+    <symbol> } </symbol>
+    <symbol> { </symbol>
+    <symbol> = </symbol>
+    <symbol> * </symbol>
+    <symbol> ( </symbol>
+    <symbol> - </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> = </symbol>
+    <symbol> / </symbol>
+    <symbol> ( </symbol>
+    <symbol> - </symbol>
+    <symbol> ) </symbol>
+    <symbol> ; </symbol>
+    <symbol> = </symbol>
+    <symbol> | </symbol>
+    <symbol> ; </symbol>
+    <symbol> } </symbol>
+    <symbol> ; </symbol>
+    <symbol> } </symbol>
+    <symbol> } </symbol>
+  </class>
