@@ -1,3 +1,8 @@
+const op = ['+', '-', '*', '/', '&', '|', '<', '>', '='];
+const keywordConstant = ['true', 'false', 'null', 'this'];
+const unaryOp = ['-', '~'];
+const statements = ['let', 'if', 'while', 'do', 'return'];
+
 class CompilationEngine {
   constructor(tokens) {
     this.tokens = tokens;
@@ -12,6 +17,11 @@ class CompilationEngine {
     this.currentToken = this.tokens[this.tokenCount];
   }
 
+  moveBack() {
+    this.tokenCount--;
+    this.currentToken = this.tokens[this.tokenCount];
+  }
+
   run() {
     this.addToResult('<class>');
     this.indentation++;
@@ -19,8 +29,6 @@ class CompilationEngine {
       const { type, value } = this.processToken(this.currentToken);
       if (type === 'keyword') {
         this.processKeyword(type, value);
-      } else if (type === 'symbol') {
-        this.processSymbol(value);
       }
       this.advance();
     }
@@ -37,8 +45,12 @@ class CompilationEngine {
       this.processName(); // push class name e.g. Main
       this.advance();
       this.processSymbol('{'); // push {
-      this.processClassVarDec();
+      while (this.peek().value === 'static' || this.peek().value === 'field') {
+        this.processClassVarDec();
+      }
       this.processSubroutineDec();
+      this.advance();
+      this.processSymbol('}'); // push }
     }
     return result;
   }
@@ -63,13 +75,13 @@ class CompilationEngine {
   }
 
   processSubroutineDec() {
-    this.addToResult('<subroutineDec>');
-    this.indentation++;
     while (
       this.peek().value === 'constructor' ||
       this.peek().value === 'function' ||
       this.peek().value === 'method'
     ) {
+      this.addToResult('<subroutineDec>');
+      this.indentation++;
       this.advance();
       this.addToResult(this.currentToken); // push function/method/constructor
       this.advance();
@@ -82,9 +94,9 @@ class CompilationEngine {
       this.advance();
       this.processSymbol(')');
       this.processSubroutineBody();
+      this.indentation--;
+      this.addToResult('</subroutineDec>');
     }
-    this.indentation--;
-    this.addToResult('</subroutineDec>');
   }
 
   processSubroutineBody() {
@@ -92,8 +104,12 @@ class CompilationEngine {
     this.indentation++;
     this.advance();
     this.processSymbol('{');
-    this.processVarDec();
+    while (this.peek().value === 'var') {
+      this.processVarDec();
+    }
     this.processStatements();
+    this.advance();
+    this.processSymbol('}');
     this.indentation--;
     this.addToResult('</subroutineBody>');
   }
@@ -101,19 +117,25 @@ class CompilationEngine {
   processStatements() {
     this.addToResult('<statements>');
     this.indentation++;
-    const { value } = this.peek();
-    if (value === 'let') {
-      this.processLetStatement();
-    } else if (value === 'if') {
-      this.processIfStatement();
-    } else if (value === 'while') {
-      this.processWhileStatement();
-    } else if (value === 'do') {
-      this.processDoStatement();
-    } else if (value === 'return') {
-      this.processReturnStatement();
-    } else {
-      throw new Error(`Unknown statement ${value}`);
+    while (
+      this.peek() &&
+      this.peek().type === 'keyword' &&
+      statements.includes(this.peek().value)
+    ) {
+      const { value } = this.peek();
+      if (value === 'let') {
+        this.processLetStatement();
+      } else if (value === 'if') {
+        this.processIfStatement();
+      } else if (value === 'while') {
+        this.processWhileStatement();
+      } else if (value === 'do') {
+        this.processDoStatement();
+      } else if (value === 'return') {
+        this.processReturnStatement();
+      } else {
+        throw new Error(`Unknown statement ${value}`);
+      }
     }
     this.indentation--;
     this.addToResult('</statements>');
@@ -145,20 +167,126 @@ class CompilationEngine {
     this.indentation--;
     this.addToResult('</letStatement>');
   }
-  processIfStatement() {}
-  processWhileStatement() {}
-  processDoStatement() {}
-  processReturnStatement() {}
+  processIfStatement() {
+    this.addToResult('<ifStatement>');
+    this.indentation++;
+
+    this.advance();
+    this.addToResult(this.currentToken); // if token
+
+    this.advance();
+    this.processSymbol('(');
+    this.processExpression();
+    this.advance();
+    this.processSymbol(')');
+
+    this.advance();
+    this.processSymbol('{');
+    this.processStatements();
+    this.advance();
+    this.processSymbol('}');
+
+    if (this.peek().value === 'else') {
+      this.advance();
+      this.addToResult(this.currentToken); // else token
+
+      this.advance();
+      this.processSymbol('{');
+      this.processStatements();
+      this.advance();
+      this.processSymbol('}');
+    }
+
+    this.indentation--;
+    this.addToResult('</ifStatement>');
+  }
+  processWhileStatement() {
+    this.addToResult('<whileStatement>');
+    this.indentation++;
+
+    this.advance();
+    this.addToResult(this.currentToken); // while token
+
+    this.advance();
+    this.processSymbol('(');
+    this.processExpression();
+    this.advance();
+    this.processSymbol(')');
+
+    this.advance();
+    this.processSymbol('{');
+    this.processStatements();
+    this.advance();
+    this.processSymbol('}');
+
+    this.indentation--;
+    this.addToResult('</whileStatement>');
+  }
+
+  processDoStatement() {
+    this.addToResult('<doStatement>');
+    this.indentation++;
+
+    this.advance();
+    this.addToResult(this.currentToken); // do token
+
+    this.advance();
+    this.processName();
+
+    if (this.peek().value === '.') {
+      this.advance();
+      this.processSymbol('.');
+      this.advance();
+      this.processName();
+    }
+
+    this.advance();
+    this.processSymbol('(');
+    this.processExpressionList();
+    this.advance();
+    this.processSymbol(')');
+
+    this.advance();
+    this.processSymbol(';');
+
+    this.indentation--;
+    this.addToResult('</doStatement>');
+  }
+  processReturnStatement() {
+    this.addToResult('<returnStatement>');
+    this.indentation++;
+
+    this.advance();
+    this.addToResult(this.currentToken); // return token
+
+    if (this.peek().value !== ';') {
+      this.processExpression();
+    }
+
+    this.advance();
+    this.processSymbol(';');
+
+    this.indentation--;
+    this.addToResult('</returnStatement>');
+  }
 
   processExpression() {
     this.addToResult('<expression>');
     this.indentation++;
-    this.processTerm();
-
+    const result = this.processTerm();
+    while (this.peek().type === 'symbol' && op.includes(this.peek().value)) {
+      this.advance();
+      this.processSymbol(this.processToken(this.currentToken).value); // push op symbol
+      this.processTerm();
+    }
+    this.indentation--;
     this.addToResult('</expression>');
+
+    return result;
   }
 
   processTerm() {
+    let isTerm = true;
     this.addToResult('<term>');
     this.indentation++;
     this.advance();
@@ -168,7 +296,7 @@ class CompilationEngine {
       type === 'stringConstant' ||
       type === 'keyword' // not <keywordConstant
     ) {
-      this.result.push(this.currentToken);
+      this.addToResult(this.currentToken);
     } else if (
       type === 'identifier' &&
       this.peek().type !== 'symbol' &&
@@ -192,24 +320,71 @@ class CompilationEngine {
       this.advance();
       this.processSymbol(')');
     } else if (type === 'symbol' && (value === '-' || value === '~')) {
-      this.processSymbol(); // not <unaryOp
+      this.processSymbol(value); // not <unaryOp
       this.processTerm();
-    } else if (type === 'identifier' && ) { 
-      // CONTINUE HERE WITH subroutineCall
+    } else if (
+      type === 'identifier' &&
+      this.peek().type === 'symbol' &&
+      this.peek().value === '('
+    ) {
+      this.processName();
+      this.advance();
+      this.processSymbol('(');
+      this.processExpressionList();
+      this.advance();
+      this.processSymbol(')');
+    } else if (
+      type === 'identifier' &&
+      this.peek().type === 'symbol' &&
+      this.peek().value === '.'
+    ) {
+      this.processName();
+      this.advance();
+      this.processSymbol('.');
+      this.advance();
+      this.processName();
+      this.advance();
+      this.processSymbol('(');
+      this.processExpressionList();
+      this.advance();
+      this.processSymbol(')');
+    } else if (type === 'identifier') {
+      this.processName();
+    } else {
+      isTerm = false;
     }
-    else {
-      throw new Error(`Error in expression ${value} - ${type}`);
-    }
+    this.indentation--;
+    this.addToResult('</term>');
+    return isTerm;
+  }
 
-    this.addToResult('<term>');
+  processExpressionList() {
+    this.addToResult('<expressionList>');
+    this.indentation++;
+    const result = this.processExpression();
+    if (!result) {
+      // two <expressions> and two <terms>
+      new Array(4).fill().forEach(() => {
+        this.popFromResult();
+      });
+      this.moveBack();
+    } else {
+      while (this.peek().type === 'symbol' && this.peek().value === ',') {
+        this.advance();
+        this.processSymbol(',');
+        this.processExpression();
+      }
+    }
+    this.indentation--;
+    this.addToResult('</expressionList>');
   }
 
   processVarDec() {
     this.addToResult('<varDec>');
     this.indentation++;
-    while (this.peek().value === 'var') {
+    if (this.peek().value === 'var') {
       this.advance();
-      this.addToResult(this.currentToken);
+      this.addToResult(this.currentToken); // push var keyword
       this.advance();
       this.processType();
       this.advance();
@@ -230,7 +405,7 @@ class CompilationEngine {
   processClassVarDec() {
     this.addToResult('<classVarDec>');
     this.indentation++;
-    while (this.peek().value === 'static' || this.peek().value === 'field') {
+    if (this.peek().value === 'static' || this.peek().value === 'field') {
       this.advance();
       this.addToResult(this.currentToken); // push static / field keyword
       this.advance();
@@ -274,11 +449,13 @@ class CompilationEngine {
   processSymbol(symbol) {
     const { type, value } = this.processToken(this.currentToken);
     if (type !== 'symbol') {
+      console.log(this.currentToken, 'this.currentToken', value, type, symbol);
       throw new Error(
         `There must be symbol ${symbol} now instead of ${type} ${value}`,
       );
     }
     if (value !== symbol) {
+      console.log(this.currentToken, 'this.currentToken', value, type, symbol);
       throw new Error(`Problem with symbol "${symbol}"- we expect one`);
     }
     this.addToResult(this.currentToken);
@@ -326,6 +503,10 @@ class CompilationEngine {
   addToResult(token) {
     const indentation = '  '.repeat(this.indentation);
     this.result.push(`${indentation}${token}`);
+  }
+
+  popFromResult() {
+    this.result.pop();
   }
 }
 
