@@ -1,132 +1,50 @@
 <class>
   <keyword> class </keyword>
-  <identifier category="class">Point</identifier>
+  <identifier category="class">Main</identifier>
   <symbol> { </symbol>
-  <classVarDec>
-    <keyword> field </keyword>
-    <keyword> int </keyword>
-    <identifier category="field" index=0 action="defined">x</identifier>
-    <symbol> , </symbol>
-    <identifier category="field" index=1 action="defined">y</identifier>
-    <symbol> ; </symbol>
-  </classVarDec>
-  <classVarDec>
-    <keyword> static </keyword>
-    <keyword> int </keyword>
-    <identifier category="static" index=0 action="defined">pointCount</identifier>
-    <symbol> ; </symbol>
-  </classVarDec>
   <subroutineDec>
-    <keyword> method </keyword>
-    <keyword> int </keyword>
-    <identifier category="subroutine">distanceFromOrigin</identifier>
+    <keyword> function </keyword>
+    <keyword> void </keyword>
+    <identifier category="subroutine">main</identifier>
     <symbol> ( </symbol>
     <parameterList>
-    <keyword> int </keyword>
-    <identifier category="arg" index=1 action="defined">aX</identifier>
-    <symbol> , </symbol>
-    <identifier> Point </identifier>
-    <identifier category="arg" index=2 action="defined">p</identifier>
     </parameterList>
     <symbol> ) </symbol>
     <subroutineBody>
       <symbol> { </symbol>
-      <varDec>
-        <keyword> var </keyword>
-        <keyword> int </keyword>
-        <identifier category="var" index=0 action="defined">x2</identifier>
-        <symbol> , </symbol>
-        <identifier category="var" index=1 action="defined">y2</identifier>
-        <symbol> ; </symbol>
-      </varDec>
       <statements>
-        <letStatement>
-          <keyword> let </keyword>
-          <identifier category="var">x2</identifier>
-          <symbol> = </symbol>
-          <expression>
-            <term>
-              <identifier category="var">x</identifier>
-            </term>
-            <symbol> * </symbol>
-            <term>
-              <identifier category="var">x</identifier>
-            </term>
-            <symbol> + </symbol>
-            <term>
-              <identifier category="var">aX</identifier>
-            </term>
-            <symbol> * </symbol>
-            <term>
-              <identifier category="var">aX</identifier>
-            </term>
-          </expression>
+        <doStatement>
+          <keyword> do </keyword>
+          <identifier category="subroutine">Output</identifier>
+          <symbol> . </symbol>
+          <identifier category="subroutine">printInt</identifier>
+          <symbol> ( </symbol>
+          <expressionList>
+            <expression>
+              <term>
+                <integerConstant> 1 </integerConstant>
+              </term>
+              <symbol> + </symbol>
+              <term>
+                <symbol> ( </symbol>
+                <expression>
+                  <term>
+                    <integerConstant> 2 </integerConstant>
+                  </term>
+                  <symbol> * </symbol>
+                  <term>
+                    <integerConstant> 3 </integerConstant>
+                  </term>
+                </expression>
+                <symbol> ) </symbol>
+              </term>
+            </expression>
+          </expressionList>
+          <symbol> ) </symbol>
           <symbol> ; </symbol>
-        </letStatement>
-        <letStatement>
-          <keyword> let </keyword>
-          <identifier category="var">y2</identifier>
-          <symbol> = </symbol>
-          <expression>
-            <term>
-              <identifier category="var">y</identifier>
-            </term>
-            <symbol> * </symbol>
-            <term>
-              <identifier category="var">y</identifier>
-            </term>
-          </expression>
-          <symbol> ; </symbol>
-        </letStatement>
-        <letStatement>
-          <keyword> let </keyword>
-          <identifier category="var">px2</identifier>
-          <symbol> = </symbol>
-          <expression>
-            <term>
-              <identifier category="var">p</identifier>
-            </term>
-            <symbol> + </symbol>
-            <term>
-              <identifier category="var">aX</identifier>
-            </term>
-          </expression>
-          <symbol> ; </symbol>
-        </letStatement>
-        <letStatement>
-          <keyword> let </keyword>
-          <identifier category="var">py2</identifier>
-          <symbol> = </symbol>
-          <expression>
-            <term>
-              <identifier category="var">p</identifier>
-            </term>
-            <symbol> + </symbol>
-            <term>
-              <identifier category="var">y2</identifier>
-            </term>
-          </expression>
-          <symbol> ; </symbol>
-        </letStatement>
+        </doStatement>
         <returnStatement>
           <keyword> return </keyword>
-          <expression>
-            <term>
-              <identifier category="var">x2</identifier>
-            </term>
-            <symbol> + </symbol>
-            <term>
-              <identifier category="var">y2</identifier>
-            </term>
-            <symbol> + </symbol>
-            <term>
-              <identifier category="var">px2</identifier>
-            </term>
-            <symbol> + </symbol>
-            <term>
-              <identifier category="var">py2</identifier>
-            </term>
-          </expression>
           <symbol> ; </symbol>
         </returnStatement>
       </statements>

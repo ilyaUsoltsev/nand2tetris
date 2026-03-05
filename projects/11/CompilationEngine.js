@@ -10,6 +10,7 @@ class CompilationEngine {
     this.tokenCount = 0;
     this.currentToken = this.tokens[0];
     this.result = [];
+    this.vmResult = [];
     this.classSymbolTable = { field: 0, static: 0 };
     this.subroutineSymbolTable = { arg: 0, var: 0 };
   }
@@ -487,8 +488,11 @@ class CompilationEngine {
 
     const fieldCategories = ['static', 'field', 'arg', 'var'];
 
-    if (fieldCategories.includes(category) && action === 'defined') {
-      if (category === 'field' || category === 'static') {
+    if (fieldCategories.includes(category)) {
+      if (
+        (category === 'field' || category === 'static') &&
+        action === 'defined'
+      ) {
         this.classSymbolTable[value] = [
           value,
           varType,
@@ -496,7 +500,10 @@ class CompilationEngine {
           this.classSymbolTable[category],
         ];
         this.classSymbolTable[category]++;
-      } else {
+      } else if (
+        (category === 'arg' || category === 'var') &&
+        action === 'defined'
+      ) {
         // var and arg
         this.subroutineSymbolTable[value] = [
           value,
@@ -508,13 +515,13 @@ class CompilationEngine {
       }
 
       this.addToResult(
-        `<${type} category="${category}" index=${index} action="${action}">${value}</${type}>`,
+        `<${type} category="${category}" index="${index}" action="${action}">${value}</${type}>`,
       );
     } else {
       this.addToResult(`<${type} category="${category}">${value}</${type}>`);
     }
-    console.log(JSON.stringify(this.subroutineSymbolTable));
-    console.log(JSON.stringify(this.classSymbolTable));
+    // console.log(JSON.stringify(this.subroutineSymbolTable));
+    // console.log(JSON.stringify(this.classSymbolTable));
   }
 
   processToken(token) {
@@ -555,6 +562,32 @@ class CompilationEngine {
 
   popFromResult() {
     this.result.pop();
+  }
+
+  // expression = {type, value}, value can be a lot of things: int, varName, {exp1, op, exp2}
+  codeWrite(expression) {
+    if (expression.type === 'integerConstant') {
+      this.vmResult.push(`push constant ${expression.value}`);
+    }
+    if (expression.type === 'var') {
+      this.vmResult.push(`push constant ${expression.value}`);
+    }
+    if ((expression.type = 'expOpExp')) {
+      this.codeWrite(expression.value.exp1);
+      this.codeWrite(expression.value.exp2);
+      this.vmResult.push(`push constant ${expression.value.op}`);
+    }
+    if ((expression.type = 'opExp')) {
+      this.codeWrite(expression.value.exp1);
+      this.vmResult.push(`push constant ${expression.value.op}`);
+    }
+    if ((expression.type = 'f')) {
+      const { fn, expressions } = expression.value;
+      for (const exp of expressions) {
+        this.codeWrite(exp);
+      }
+      this.vmResult.push(`call ${fn}`);
+    }
   }
 }
 

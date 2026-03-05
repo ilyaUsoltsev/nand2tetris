@@ -1,19 +1,16 @@
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
-// File name: projects/11/Average/Main.jack
+// File name: projects/11/Seven/Main.jack
+/**
+ * Computes the value of 1 + (2 * 3) and prints the result
+ * at the top-left of the screen.  
+ */
+class Main {
 
-// Inputs some numbers and computes their average
-class Point {
-   field int x, y;
-   static int pointCount;
-
-   method int distanceFromOrigin(int aX, Point p) {
-      var int x2, y2;
-      let x2 = x * x + aX * aX;
-      let y2 = y * y;
-      let px2 = p + aX;
-      let py2 = p + y2;
-      return x2 + y2 + px2 + py2;
+   function void main() {
+      do Output.printInt(1 + (2 * 3));
+      return;
    }
-}  
+
+}
