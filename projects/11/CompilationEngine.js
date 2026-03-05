@@ -10,6 +10,8 @@ class CompilationEngine {
     this.tokenCount = 0;
     this.currentToken = this.tokens[0];
     this.result = [];
+    this.classSymbolTable = { field: 0, static: 0 };
+    this.subroutineSymbolTable = { arg: 0, var: 0 };
   }
 
   advance() {
@@ -57,18 +59,21 @@ class CompilationEngine {
 
   processParameterList() {
     this.addToResult('<parameterList>');
+    let argIndex = 1; // argument index starts with 1 because of "this" argument for methods
     while (this.isType(this.peek().token)) {
       this.advance();
-      this.processType();
+      const varType = this.processType();
       this.advance();
-      this.processName('var', 0, 'defined');
+      this.processName('arg', argIndex, 'defined', varType);
+      argIndex++;
       while (this.peek().value === ',') {
         this.advance();
         this.processSymbol(',');
         this.advance();
-        this.processType();
+        const nextVarType = this.processType();
         this.advance();
-        this.processName('var', null, 'defined');
+        this.processName('arg', argIndex, 'defined', nextVarType);
+        argIndex++;
       }
     }
     this.addToResult('</parameterList>');
@@ -87,7 +92,7 @@ class CompilationEngine {
       this.advance();
       this.processTypeOrVoid();
       this.advance();
-      this.processName();
+      this.processName('subroutine'); // push subroutine name e.g. new / dispose / main
       this.advance();
       this.processSymbol('(');
       this.processParameterList();
@@ -148,7 +153,7 @@ class CompilationEngine {
     this.advance();
     this.addToResult(this.currentToken); // let token
     this.advance();
-    this.processName();
+    this.processName('var', null, 'used'); // var name
 
     // [expression]
     while (this.peek().value === '[') {
@@ -231,13 +236,13 @@ class CompilationEngine {
     this.addToResult(this.currentToken); // do token
 
     this.advance();
-    this.processName();
+    this.processName('subroutine'); // push subroutine name e.g. new / dispose / main
 
     if (this.peek().value === '.') {
       this.advance();
       this.processSymbol('.');
       this.advance();
-      this.processName();
+      this.processName('subroutine');
     }
 
     this.advance();
@@ -302,13 +307,13 @@ class CompilationEngine {
       this.peek().type !== 'symbol' &&
       this.peek().value !== '['
     ) {
-      this.processName();
+      this.processName('var', null, 'used');
     } else if (
       type === 'identifier' &&
       this.peek().type === 'symbol' &&
       this.peek().value === '['
     ) {
-      this.processName();
+      this.processName('var', null, 'used');
       this.advance();
       this.processSymbol('[');
       this.processExpression();
@@ -327,7 +332,7 @@ class CompilationEngine {
       this.peek().type === 'symbol' &&
       this.peek().value === '('
     ) {
-      this.processName();
+      this.processName('subroutine');
       this.advance();
       this.processSymbol('(');
       this.processExpressionList();
@@ -338,18 +343,18 @@ class CompilationEngine {
       this.peek().type === 'symbol' &&
       this.peek().value === '.'
     ) {
-      this.processName();
+      this.processName('subroutine');
       this.advance();
       this.processSymbol('.');
       this.advance();
-      this.processName();
+      this.processName('subroutine');
       this.advance();
       this.processSymbol('(');
       this.processExpressionList();
       this.advance();
       this.processSymbol(')');
     } else if (type === 'identifier') {
-      this.processName();
+      this.processName('var', null, 'used');
     } else {
       isTerm = false;
     }
@@ -382,18 +387,21 @@ class CompilationEngine {
   processVarDec() {
     this.addToResult('<varDec>');
     this.indentation++;
+    let varIndex = 0;
     if (this.peek().value === 'var') {
       this.advance();
       this.addToResult(this.currentToken); // push var keyword
       this.advance();
-      this.processType();
+      const varType = this.processType();
       this.advance();
-      this.processName();
+      this.processName('var', varIndex, 'defined', varType);
+      varIndex++;
       while (this.peek().value === ',') {
         this.advance();
         this.processSymbol(',');
         this.advance();
-        this.processName();
+        this.processName('var', varIndex, 'defined', varType);
+        varIndex++;
       }
       this.advance();
       this.processSymbol(';');
@@ -405,18 +413,23 @@ class CompilationEngine {
   processClassVarDec() {
     this.addToResult('<classVarDec>');
     this.indentation++;
+    let fieldIndex = 0;
     if (this.peek().value === 'static' || this.peek().value === 'field') {
       this.advance();
+      const { value } = this.processToken(this.currentToken);
       this.addToResult(this.currentToken); // push static / field keyword
       this.advance();
-      this.processType();
+      const varType = this.processType();
       this.advance();
-      this.processName();
+      this.processName(value, fieldIndex, 'defined', varType);
+      this.classSymbolTable;
+      fieldIndex++;
       while (this.peek().value === ',') {
         this.advance();
         this.processSymbol(',');
         this.advance();
-        this.processName();
+        this.processName(value, fieldIndex, 'defined', varType);
+        fieldIndex++;
       }
       this.advance();
       this.processSymbol(';');
@@ -440,7 +453,9 @@ class CompilationEngine {
 
   processType() {
     if (this.isType(this.currentToken)) {
+      const { value } = this.processToken(this.currentToken);
       this.addToResult(this.currentToken);
+      return value;
     } else {
       throw new Error(`Error in processType ${type} ${value}`);
     }
@@ -461,7 +476,7 @@ class CompilationEngine {
     this.addToResult(this.currentToken);
   }
 
-  processName(category, index, action) {
+  processName(category, index, action, varType) {
     const { type, value } = this.processToken(this.currentToken);
     if (type !== 'identifier') {
       throw new Error('There must be indentifier after class keyword');
@@ -470,15 +485,36 @@ class CompilationEngine {
       throw new Error('Category is required for name processing');
     }
 
-    const fieldCategories = ['static', 'field', 'argument', 'var'];
+    const fieldCategories = ['static', 'field', 'arg', 'var'];
 
-    if (fieldCategories.includes(category)) {
+    if (fieldCategories.includes(category) && action === 'defined') {
+      if (category === 'field' || category === 'static') {
+        this.classSymbolTable[value] = [
+          value,
+          varType,
+          category,
+          this.classSymbolTable[category],
+        ];
+        this.classSymbolTable[category]++;
+      } else {
+        // var and arg
+        this.subroutineSymbolTable[value] = [
+          value,
+          varType,
+          category,
+          this.subroutineSymbolTable[category],
+        ];
+        this.subroutineSymbolTable[category]++;
+      }
+
       this.addToResult(
         `<${type} category="${category}" index=${index} action="${action}">${value}</${type}>`,
       );
     } else {
       this.addToResult(`<${type} category="${category}">${value}</${type}>`);
     }
+    console.log(JSON.stringify(this.subroutineSymbolTable));
+    console.log(JSON.stringify(this.classSymbolTable));
   }
 
   processToken(token) {

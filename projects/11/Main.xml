@@ -1,215 +1,132 @@
 <class>
   <keyword> class </keyword>
-  <identifier> Main </identifier>
+  <identifier category="class">Point</identifier>
   <symbol> { </symbol>
+  <classVarDec>
+    <keyword> field </keyword>
+    <keyword> int </keyword>
+    <identifier category="field" index=0 action="defined">x</identifier>
+    <symbol> , </symbol>
+    <identifier category="field" index=1 action="defined">y</identifier>
+    <symbol> ; </symbol>
+  </classVarDec>
+  <classVarDec>
+    <keyword> static </keyword>
+    <keyword> int </keyword>
+    <identifier category="static" index=0 action="defined">pointCount</identifier>
+    <symbol> ; </symbol>
+  </classVarDec>
   <subroutineDec>
-    <keyword> function </keyword>
-    <keyword> void </keyword>
-    <identifier> main </identifier>
+    <keyword> method </keyword>
+    <keyword> int </keyword>
+    <identifier category="subroutine">distanceFromOrigin</identifier>
     <symbol> ( </symbol>
     <parameterList>
+    <keyword> int </keyword>
+    <identifier category="arg" index=1 action="defined">aX</identifier>
+    <symbol> , </symbol>
+    <identifier> Point </identifier>
+    <identifier category="arg" index=2 action="defined">p</identifier>
     </parameterList>
     <symbol> ) </symbol>
     <subroutineBody>
       <symbol> { </symbol>
       <varDec>
         <keyword> var </keyword>
-        <identifier> Array </identifier>
-        <identifier> a </identifier>
-        <symbol> ; </symbol>
-      </varDec>
-      <varDec>
-        <keyword> var </keyword>
         <keyword> int </keyword>
-        <identifier> length </identifier>
-        <symbol> ; </symbol>
-      </varDec>
-      <varDec>
-        <keyword> var </keyword>
-        <keyword> int </keyword>
-        <identifier> i </identifier>
+        <identifier category="var" index=0 action="defined">x2</identifier>
         <symbol> , </symbol>
-        <identifier> sum </identifier>
+        <identifier category="var" index=1 action="defined">y2</identifier>
         <symbol> ; </symbol>
       </varDec>
       <statements>
         <letStatement>
           <keyword> let </keyword>
-          <identifier> length </identifier>
+          <identifier category="var">x2</identifier>
           <symbol> = </symbol>
           <expression>
             <term>
-              <identifier> Keyboard </identifier>
-              <symbol> . </symbol>
-              <identifier> readInt </identifier>
-              <symbol> ( </symbol>
-              <expressionList>
-                <expression>
-                  <term>
-                    <stringConstant> How many numbers?  </stringConstant>
-                  </term>
-                </expression>
-              </expressionList>
-              <symbol> ) </symbol>
+              <identifier category="var">x</identifier>
+            </term>
+            <symbol> * </symbol>
+            <term>
+              <identifier category="var">x</identifier>
+            </term>
+            <symbol> + </symbol>
+            <term>
+              <identifier category="var">aX</identifier>
+            </term>
+            <symbol> * </symbol>
+            <term>
+              <identifier category="var">aX</identifier>
             </term>
           </expression>
           <symbol> ; </symbol>
         </letStatement>
         <letStatement>
           <keyword> let </keyword>
-          <identifier> a </identifier>
+          <identifier category="var">y2</identifier>
           <symbol> = </symbol>
           <expression>
             <term>
-              <identifier> Array </identifier>
-              <symbol> . </symbol>
-              <identifier> new </identifier>
-              <symbol> ( </symbol>
-              <expressionList>
-                <expression>
-                  <term>
-                    <identifier> length </identifier>
-                  </term>
-                </expression>
-              </expressionList>
-              <symbol> ) </symbol>
+              <identifier category="var">y</identifier>
+            </term>
+            <symbol> * </symbol>
+            <term>
+              <identifier category="var">y</identifier>
             </term>
           </expression>
           <symbol> ; </symbol>
         </letStatement>
         <letStatement>
           <keyword> let </keyword>
-          <identifier> i </identifier>
+          <identifier category="var">px2</identifier>
           <symbol> = </symbol>
           <expression>
             <term>
-              <integerConstant> 0 </integerConstant>
+              <identifier category="var">p</identifier>
+            </term>
+            <symbol> + </symbol>
+            <term>
+              <identifier category="var">aX</identifier>
             </term>
           </expression>
           <symbol> ; </symbol>
         </letStatement>
-        <whileStatement>
-          <keyword> while </keyword>
-          <symbol> ( </symbol>
+        <letStatement>
+          <keyword> let </keyword>
+          <identifier category="var">py2</identifier>
+          <symbol> = </symbol>
           <expression>
             <term>
-              <identifier> i </identifier>
+              <identifier category="var">p</identifier>
             </term>
-            <symbol> < </symbol>
+            <symbol> + </symbol>
             <term>
-              <identifier> length </identifier>
+              <identifier category="var">y2</identifier>
             </term>
           </expression>
-          <symbol> ) </symbol>
-          <symbol> { </symbol>
-          <statements>
-            <letStatement>
-              <keyword> let </keyword>
-              <identifier> a </identifier>
-              <symbol> [ </symbol>
-              <expression>
-                <term>
-                  <identifier> i </identifier>
-                </term>
-              </expression>
-              <symbol> ] </symbol>
-              <symbol> = </symbol>
-              <expression>
-                <term>
-                  <identifier> Keyboard </identifier>
-                  <symbol> . </symbol>
-                  <identifier> readInt </identifier>
-                  <symbol> ( </symbol>
-                  <expressionList>
-                    <expression>
-                      <term>
-                        <stringConstant> Enter a number:  </stringConstant>
-                      </term>
-                    </expression>
-                  </expressionList>
-                  <symbol> ) </symbol>
-                </term>
-              </expression>
-              <symbol> ; </symbol>
-            </letStatement>
-            <letStatement>
-              <keyword> let </keyword>
-              <identifier> sum </identifier>
-              <symbol> = </symbol>
-              <expression>
-                <term>
-                  <identifier> sum </identifier>
-                </term>
-                <symbol> + </symbol>
-                <term>
-                  <identifier> a </identifier>
-                  <symbol> [ </symbol>
-                  <expression>
-                    <term>
-                      <identifier> i </identifier>
-                    </term>
-                  </expression>
-                  <symbol> ] </symbol>
-                </term>
-              </expression>
-              <symbol> ; </symbol>
-            </letStatement>
-            <letStatement>
-              <keyword> let </keyword>
-              <identifier> i </identifier>
-              <symbol> = </symbol>
-              <expression>
-                <term>
-                  <identifier> i </identifier>
-                </term>
-                <symbol> + </symbol>
-                <term>
-                  <integerConstant> 1 </integerConstant>
-                </term>
-              </expression>
-              <symbol> ; </symbol>
-            </letStatement>
-          </statements>
-          <symbol> } </symbol>
-        </whileStatement>
-        <doStatement>
-          <keyword> do </keyword>
-          <identifier> Output </identifier>
-          <symbol> . </symbol>
-          <identifier> printString </identifier>
-          <symbol> ( </symbol>
-          <expressionList>
-            <expression>
-              <term>
-                <stringConstant> The average is  </stringConstant>
-              </term>
-            </expression>
-          </expressionList>
-          <symbol> ) </symbol>
           <symbol> ; </symbol>
-        </doStatement>
-        <doStatement>
-          <keyword> do </keyword>
-          <identifier> Output </identifier>
-          <symbol> . </symbol>
-          <identifier> printInt </identifier>
-          <symbol> ( </symbol>
-          <expressionList>
-            <expression>
-              <term>
-                <identifier> sum </identifier>
-              </term>
-              <symbol> / </symbol>
-              <term>
-                <identifier> length </identifier>
-              </term>
-            </expression>
-          </expressionList>
-          <symbol> ) </symbol>
-          <symbol> ; </symbol>
-        </doStatement>
+        </letStatement>
         <returnStatement>
           <keyword> return </keyword>
+          <expression>
+            <term>
+              <identifier category="var">x2</identifier>
+            </term>
+            <symbol> + </symbol>
+            <term>
+              <identifier category="var">y2</identifier>
+            </term>
+            <symbol> + </symbol>
+            <term>
+              <identifier category="var">px2</identifier>
+            </term>
+            <symbol> + </symbol>
+            <term>
+              <identifier category="var">py2</identifier>
+            </term>
+          </expression>
           <symbol> ; </symbol>
         </returnStatement>
       </statements>

@@ -50,7 +50,7 @@ class Tokenizer {
       } else if (this.isAlphabetic(el)) {
         let identifier = '';
         let tempCount = this.currentCount;
-        while (this.isAlphabetic(lineElements[tempCount])) {
+        while (this.isAlphabeticOrNumeric(lineElements[tempCount])) {
           identifier += lineElements[tempCount];
           tempCount++;
         }
@@ -96,6 +96,16 @@ class Tokenizer {
     const code = char.charCodeAt();
     return (
       (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || code === 95
+    );
+  }
+
+  isAlphabeticOrNumeric(char) {
+    const code = char.charCodeAt();
+    return (
+      (code >= 65 && code <= 90) ||
+      (code >= 97 && code <= 122) ||
+      (code >= 48 && code <= 57) ||
+      code === 95
     );
   }
 }
