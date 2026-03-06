@@ -1,3 +1,5 @@
+const CodeWrite = require('./CodeWrite');
+
 const op = ['+', '-', '*', '/', '&', '|', '<', '>', '='];
 const keywordConstant = ['true', 'false', 'null', 'this'];
 const unaryOp = ['-', '~'];
@@ -13,6 +15,8 @@ class CompilationEngine {
     this.vmResult = [];
     this.classSymbolTable = { field: 0, static: 0 };
     this.subroutineSymbolTable = { arg: 0, var: 0 };
+    this.codeWrite = new CodeWrite();
+    this.className = '';
   }
 
   advance() {
@@ -26,26 +30,22 @@ class CompilationEngine {
   }
 
   run() {
-    this.addToResult('<class>');
-    this.indentation++;
     while (this.tokenCount < this.tokens.length) {
       const { type, value } = this.processToken(this.currentToken);
+      // essentially we start here and finish here as it's a class
       if (type === 'keyword') {
         this.processKeyword(type, value);
       }
-      this.advance();
+      this.advance(); // final EOF
     }
-    this.indentation--;
-    this.addToResult('</class>');
-    return this.result;
+    return this.codeWrite.vmResult;
   }
 
   processKeyword(type, value) {
-    const result = [];
     if (value === 'class') {
       this.addToResult(this.currentToken); // push <keyword>class</keyword>
       this.advance();
-      this.processName('class'); // push class name e.g. Main
+      this.className = this.processName('class'); // push class name e.g. Main
       this.advance();
       this.processSymbol('{'); // push {
       while (this.peek().value === 'static' || this.peek().value === 'field') {
@@ -55,7 +55,6 @@ class CompilationEngine {
       this.advance();
       this.processSymbol('}'); // push }
     }
-    return result;
   }
 
   processParameterList() {
@@ -80,34 +79,32 @@ class CompilationEngine {
     this.addToResult('</parameterList>');
   }
 
+  // this.codeWrite.vmResult.push(`function ${name}`);
   processSubroutineDec() {
     while (
       this.peek().value === 'constructor' ||
       this.peek().value === 'function' ||
       this.peek().value === 'method'
     ) {
-      this.addToResult('<subroutineDec>');
-      this.indentation++;
       this.advance();
       this.addToResult(this.currentToken); // push function/method/constructor
       this.advance();
       this.processTypeOrVoid();
       this.advance();
-      this.processName('subroutine'); // push subroutine name e.g. new / dispose / main
+      const functionName = this.processName('subroutine'); // push subroutine name e.g. new / dispose / main
+      this.codeWrite.vmResult.push(
+        `function ${this.className}.${functionName}`,
+      );
       this.advance();
       this.processSymbol('(');
       this.processParameterList();
       this.advance();
       this.processSymbol(')');
       this.processSubroutineBody();
-      this.indentation--;
-      this.addToResult('</subroutineDec>');
     }
   }
 
   processSubroutineBody() {
-    this.addToResult('<subroutineBody>');
-    this.indentation++;
     this.advance();
     this.processSymbol('{');
     while (this.peek().value === 'var') {
@@ -116,13 +113,9 @@ class CompilationEngine {
     this.processStatements();
     this.advance();
     this.processSymbol('}');
-    this.indentation--;
-    this.addToResult('</subroutineBody>');
   }
 
   processStatements() {
-    this.addToResult('<statements>');
-    this.indentation++;
     while (
       this.peek() &&
       this.peek().type === 'keyword' &&
@@ -143,8 +136,6 @@ class CompilationEngine {
         throw new Error(`Unknown statement ${value}`);
       }
     }
-    this.indentation--;
-    this.addToResult('</statements>');
   }
 
   processLetStatement() {
@@ -230,79 +221,78 @@ class CompilationEngine {
   }
 
   processDoStatement() {
-    this.addToResult('<doStatement>');
-    this.indentation++;
-
     this.advance();
     this.addToResult(this.currentToken); // do token
 
     this.advance();
-    this.processName('subroutine'); // push subroutine name e.g. new / dispose / main
+    let subName;
+    const name = this.processName('subroutine'); // push subroutine name e.g. new / dispose / main / Output
 
     if (this.peek().value === '.') {
       this.advance();
       this.processSymbol('.');
       this.advance();
-      this.processName('subroutine');
+      subName = this.processName('subroutine');
     }
 
     this.advance();
     this.processSymbol('(');
-    this.processExpressionList();
+    const results = this.processExpressionList();
     this.advance();
     this.processSymbol(')');
 
     this.advance();
     this.processSymbol(';');
 
-    this.indentation--;
-    this.addToResult('</doStatement>');
+    const functionName = subName ? `${name}.${subName}` : name;
+    this.codeWrite.codeWrite({
+      type: 'f',
+      value: { fn: functionName, expressions: [results] },
+    });
+    this.codeWrite.vmResult.push('pop temp 0'); // discard return value of do statement
   }
   processReturnStatement() {
-    this.addToResult('<returnStatement>');
-    this.indentation++;
-
     this.advance();
     this.addToResult(this.currentToken); // return token
 
     if (this.peek().value !== ';') {
-      this.processExpression();
+      const exp = this.processExpression();
+      this.codeWrite.codeWrite(exp);
+    } else {
+      this.codeWrite.codeWrite({ type: 'integerConstant', value: 0 });
     }
+
+    this.codeWrite.vmResult.push('return');
 
     this.advance();
     this.processSymbol(';');
-
-    this.indentation--;
-    this.addToResult('</returnStatement>');
   }
 
   processExpression() {
-    this.addToResult('<expression>');
-    this.indentation++;
-    const result = this.processTerm();
+    let exp1 = this.processTerm();
     while (this.peek().type === 'symbol' && op.includes(this.peek().value)) {
       this.advance();
-      this.processSymbol(this.processToken(this.currentToken).value); // push op symbol
-      this.processTerm();
+      const op = this.processSymbol(this.processToken(this.currentToken).value); // push op symbol
+      const exp2 = this.processTerm();
+      exp1 = { type: 'expOpExp', value: { exp1, op, exp2 } };
     }
-    this.indentation--;
-    this.addToResult('</expression>');
-
-    return result;
+    return exp1;
   }
 
   processTerm() {
-    let isTerm = true;
     this.addToResult('<term>');
     this.indentation++;
     this.advance();
     const { type, value } = this.processToken(this.currentToken);
+    let result = true;
     if (
       type === 'integerConstant' ||
       type === 'stringConstant' ||
       type === 'keyword' // not <keywordConstant
     ) {
-      this.addToResult(this.currentToken);
+      if (type === 'integerConstant') {
+        result = { type: 'integerConstant', value };
+      }
     } else if (
       type === 'identifier' &&
       this.peek().type !== 'symbol' &&
@@ -322,7 +312,7 @@ class CompilationEngine {
       this.processSymbol(']');
     } else if (type === 'symbol' && value === '(') {
       this.processSymbol('(');
-      this.processExpression();
+      result = this.processExpression();
       this.advance();
       this.processSymbol(')');
     } else if (type === 'symbol' && (value === '-' || value === '~')) {
@@ -336,7 +326,7 @@ class CompilationEngine {
       this.processName('subroutine');
       this.advance();
       this.processSymbol('(');
-      this.processExpressionList();
+      result = this.processExpressionList();
       this.advance();
       this.processSymbol(')');
     } else if (
@@ -351,22 +341,18 @@ class CompilationEngine {
       this.processName('subroutine');
       this.advance();
       this.processSymbol('(');
-      this.processExpressionList();
+      result = this.processExpressionList();
       this.advance();
       this.processSymbol(')');
     } else if (type === 'identifier') {
       this.processName('var', null, 'used');
     } else {
-      isTerm = false;
+      throw new Error(`Unknown term type ${type} with value ${value}`);
     }
-    this.indentation--;
-    this.addToResult('</term>');
-    return isTerm;
+    return result;
   }
 
   processExpressionList() {
-    this.addToResult('<expressionList>');
-    this.indentation++;
     const result = this.processExpression();
     if (!result) {
       // two <expressions> and two <terms>
@@ -381,8 +367,7 @@ class CompilationEngine {
         this.processExpression();
       }
     }
-    this.indentation--;
-    this.addToResult('</expressionList>');
+    return result;
   }
 
   processVarDec() {
@@ -412,8 +397,6 @@ class CompilationEngine {
   }
 
   processClassVarDec() {
-    this.addToResult('<classVarDec>');
-    this.indentation++;
     let fieldIndex = 0;
     if (this.peek().value === 'static' || this.peek().value === 'field') {
       this.advance();
@@ -435,8 +418,6 @@ class CompilationEngine {
       this.advance();
       this.processSymbol(';');
     }
-    this.indentation--;
-    this.addToResult('</classVarDec>');
   }
 
   processTypeOrVoid() {
@@ -474,7 +455,7 @@ class CompilationEngine {
       console.log(this.currentToken, 'this.currentToken', value, type, symbol);
       throw new Error(`Problem with symbol "${symbol}"- we expect one`);
     }
-    this.addToResult(this.currentToken);
+    return value;
   }
 
   processName(category, index, action, varType) {
@@ -522,6 +503,7 @@ class CompilationEngine {
     }
     // console.log(JSON.stringify(this.subroutineSymbolTable));
     // console.log(JSON.stringify(this.classSymbolTable));
+    return value;
   }
 
   processToken(token) {
@@ -562,32 +544,6 @@ class CompilationEngine {
 
   popFromResult() {
     this.result.pop();
-  }
-
-  // expression = {type, value}, value can be a lot of things: int, varName, {exp1, op, exp2}
-  codeWrite(expression) {
-    if (expression.type === 'integerConstant') {
-      this.vmResult.push(`push constant ${expression.value}`);
-    }
-    if (expression.type === 'var') {
-      this.vmResult.push(`push constant ${expression.value}`);
-    }
-    if ((expression.type = 'expOpExp')) {
-      this.codeWrite(expression.value.exp1);
-      this.codeWrite(expression.value.exp2);
-      this.vmResult.push(`push constant ${expression.value.op}`);
-    }
-    if ((expression.type = 'opExp')) {
-      this.codeWrite(expression.value.exp1);
-      this.vmResult.push(`push constant ${expression.value.op}`);
-    }
-    if ((expression.type = 'f')) {
-      const { fn, expressions } = expression.value;
-      for (const exp of expressions) {
-        this.codeWrite(exp);
-      }
-      this.vmResult.push(`call ${fn}`);
-    }
   }
 }
 

@@ -6,7 +6,7 @@
 // - opExp: { op, exp1 }
 // - f: { fn, expressions }
 
-class VmWriter {
+class CodeWrite {
   constructor(resolveVar) {
     this.vmResult = [];
     // resolveVar(name) => { segment: 'local'|'argument'|'static'|'this'|'temp'|'pointer', index: number }
@@ -103,21 +103,21 @@ class VmWriter {
   }
 }
 
+module.exports = CodeWrite;
+
 // Example usage:
-const writer = new VmWriter((name) => {
-  // TODO: replace with your symbol table lookup
-  if (name === 'x') return { segment: 'local', index: 0 };
-  if (name === 'y') return { segment: 'argument', index: 1 };
-  return { segment: 'static', index: 0 };
-});
+// const writer = new VmWriter((name) => {
+//   // TODO: replace with your symbol table lookup
+//   if (name === 'x') return { segment: 'local', index: 0 };
+//   if (name === 'y') return { segment: 'argument', index: 1 };
+//   return { segment: 'static', index: 0 };
+// });
 
-writer.codeWrite({
-  type: 'expOpExp',
-  value: {
-    exp1: { type: 'integerConstant', value: 2 },
-    op: '+',
-    exp2: { type: 'var', value: 'x' },
-  },
-});
-
-console.log(writer.vmResult.join('\n'));
+// writer.codeWrite({
+//   type: 'expOpExp',
+//   value: {
+//     exp1: { type: 'integerConstant', value: 2 },
+//     op: '+',
+//     exp2: { type: 'var', value: 'x' },
+//   },
+// });

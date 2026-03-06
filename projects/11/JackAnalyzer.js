@@ -47,7 +47,7 @@ function main() {
 
       for (const filePath of jackFiles) {
         writeFileSync(
-          join(input, `${basename(filePath, '.jack')}.xml`),
+          join(input, `${basename(filePath, '.jack')}.vm`),
           translateFile(filePath).join('\n'),
         );
       }
@@ -60,7 +60,7 @@ function main() {
       }
 
       const baseFileName = basename(input, '.jack');
-      const outputFileName = join(dirname(input), `${baseFileName}.xml`);
+      const outputFileName = join(dirname(input), `${baseFileName}.vm`);
       const result = translateFile(input);
 
       writeFileSync(outputFileName, result.join('\n'));
