@@ -4,6 +4,12 @@ const op = ['+', '-', '*', '/', '&', '|', '<', '>', '='];
 const keywordConstant = ['true', 'false', 'null', 'this'];
 const unaryOp = ['-', '~'];
 const statements = ['let', 'if', 'while', 'do', 'return'];
+const vmMap = {
+  field: 'this',
+  static: 'static',
+  arg: 'argument',
+  var: 'local',
+};
 
 class CompilationEngine {
   constructor(tokens) {
@@ -139,31 +145,40 @@ class CompilationEngine {
   }
 
   processLetStatement() {
-    this.addToResult('<letStatement>');
-    this.indentation++;
-
     this.advance();
     this.addToResult(this.currentToken); // let token
     this.advance();
-    this.processName('var', null, 'used'); // var name
+    const varName = this.processName('var', null, 'used'); // var name
 
     // [expression]
     while (this.peek().value === '[') {
       this.advance();
       this.processSymbol('[');
-      this.processExpression();
+      this.processExpression(); // Array LATER
       this.advance();
       this.processSymbol(']');
     }
     this.advance();
     this.processSymbol('=');
-    this.processExpression();
+    const exp = this.processExpression();
+    this.codeWrite.codeWrite(exp);
+    this.codeWrite.vmResult.push(this.getVarFromTable(varName, 'pop'));
     this.advance();
     this.processSymbol(';');
-
-    this.indentation--;
-    this.addToResult('</letStatement>');
   }
+
+  getVarFromTable(varName, action) {
+    let info = this.subroutineSymbolTable[varName];
+    if (!info) {
+      info = this.classSymbolTable[varName];
+    }
+    if (!info) {
+      throw new Error(`Variable is not declared ${varName}`);
+    }
+
+    return `${action} ${vmMap[info[2]]} ${info[3]}`;
+  }
+
   processIfStatement() {
     this.addToResult('<ifStatement>');
     this.indentation++;
@@ -293,6 +308,9 @@ class CompilationEngine {
       if (type === 'integerConstant') {
         result = { type: 'integerConstant', value };
       }
+      if (type === 'keyword') {
+        result = { type, value };
+      }
     } else if (
       type === 'identifier' &&
       this.peek().type !== 'symbol' &&
@@ -371,8 +389,6 @@ class CompilationEngine {
   }
 
   processVarDec() {
-    this.addToResult('<varDec>');
-    this.indentation++;
     let varIndex = 0;
     if (this.peek().value === 'var') {
       this.advance();
@@ -392,8 +408,6 @@ class CompilationEngine {
       this.advance();
       this.processSymbol(';');
     }
-    this.indentation--;
-    this.addToResult('</varDec>');
   }
 
   processClassVarDec() {

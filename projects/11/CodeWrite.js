@@ -11,13 +11,24 @@ class CodeWrite {
     this.vmResult = [];
     // resolveVar(name) => { segment: 'local'|'argument'|'static'|'this'|'temp'|'pointer', index: number }
     this.resolveVar =
-      resolveVar || ((name) => ({ segment: 'local', index: 0 }));
+      resolveVar || ((name) => ({ segment: 'local', index: 110 }));
   }
 
   codeWrite(expression) {
     switch (expression.type) {
       case 'integerConstant': {
         this.vmResult.push(`push constant ${expression.value}`);
+        return;
+      }
+
+      case 'keyword': {
+        if (expression.value === 'true') {
+          this.vmResult.push(`push constant 1`);
+          this.vmResult.push(`neg`);
+        }
+        if (expression.value === 'false') {
+          this.vmResult.push(`push constant 0`);
+        }
         return;
       }
 
