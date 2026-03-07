@@ -55,10 +55,12 @@ class CompilationEngine {
       this.className = this.processName('class'); // push class name e.g. Main
       this.advance();
       this.processSymbol('{'); // push {
+      let numLocalVars = 0;
       while (this.peek().value === 'static' || this.peek().value === 'field') {
         this.processClassVarDec();
+        numLocalVars++;
       }
-      this.processSubroutineDec();
+      this.processSubroutineDec(numLocalVars);
       this.advance();
       this.processSymbol('}'); // push }
     }
@@ -87,7 +89,7 @@ class CompilationEngine {
   }
 
   // this.codeWrite.vmResult.push(`function ${name}`);
-  processSubroutineDec() {
+  processSubroutineDec(numLocalVars = 0) {
     while (
       this.peek().value === 'constructor' ||
       this.peek().value === 'function' ||
@@ -100,7 +102,7 @@ class CompilationEngine {
       this.advance();
       const functionName = this.processName('subroutine'); // push subroutine name e.g. new / dispose / main
       this.codeWrite.vmResult.push(
-        `function ${this.className}.${functionName}`,
+        `function ${this.className}.${functionName} ${numLocalVars}`,
       );
       this.advance();
       this.processSymbol('(');
@@ -187,7 +189,6 @@ class CompilationEngine {
     this.advance();
     this.processSymbol('(');
     const ifExp = this.processExpression();
-    console.log(JSON.stringify(ifExp), 'ifExps');
     this.codeWrite.codeWrite(ifExp);
     this.codeWrite.vmResult.push('not');
     const L1 = this.getLabel();
@@ -267,7 +268,7 @@ class CompilationEngine {
     const functionName = subName ? `${name}.${subName}` : name;
     this.codeWrite.codeWrite({
       type: 'f',
-      value: { fn: functionName, expressions: [results] },
+      value: { fn: functionName, expressions: results },
     });
     this.codeWrite.vmResult.push('pop temp 0'); // discard return value of do statement
   }
@@ -300,11 +301,9 @@ class CompilationEngine {
   }
 
   processTerm() {
-    this.addToResult('<term>');
-    this.indentation++;
     this.advance();
     const { type, value } = this.processToken(this.currentToken);
-    let result = 'PROCESSED TERM';
+    let result = `${type}_${value}`;
     if (
       type === 'integerConstant' ||
       type === 'stringConstant' ||
@@ -341,7 +340,8 @@ class CompilationEngine {
       this.processSymbol(')');
     } else if (type === 'symbol' && (value === '-' || value === '~')) {
       this.processSymbol(value); // not <unaryOp
-      this.processTerm();
+      result = this.processTerm();
+      result = { type: 'opExp', value: { op: value, exp1: result } };
     } else if (
       type === 'identifier' &&
       this.peek().type === 'symbol' &&
@@ -350,7 +350,7 @@ class CompilationEngine {
       this.processName('subroutine');
       this.advance();
       this.processSymbol('(');
-      result = this.processExpressionList();
+      result = this.processExpressionList()[0];
       this.advance();
       this.processSymbol(')');
     } else if (
@@ -365,7 +365,7 @@ class CompilationEngine {
       this.processName('subroutine');
       this.advance();
       this.processSymbol('(');
-      result = this.processExpressionList();
+      result = this.processExpressionList()[0];
       this.advance();
       this.processSymbol(')');
     } else if (type === 'identifier') {
@@ -378,7 +378,9 @@ class CompilationEngine {
   }
 
   processExpressionList() {
-    const result = this.processExpression();
+    const result = [];
+    const exp = this.processExpression();
+    result.push(exp);
     if (!result) {
       // two <expressions> and two <terms>
       new Array(4).fill().forEach(() => {
@@ -389,7 +391,8 @@ class CompilationEngine {
       while (this.peek().type === 'symbol' && this.peek().value === ',') {
         this.advance();
         this.processSymbol(',');
-        this.processExpression();
+        const exp = this.processExpression();
+        result.push(exp);
       }
     }
     return result;
@@ -568,7 +571,7 @@ class CompilationEngine {
   }
 
   getLabel() {
-    const label = `L_${this.labelCount}`;
+    const label = `${this.className}_${this.labelCount}`;
     this.labelCount++;
     return label;
   }

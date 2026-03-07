@@ -1,46 +1,104 @@
-function Main.main
+function Main.main 0
+push constant 8001
+push constant 16
 push constant 1
-push constant 2
-push constant 3
-call Math.multiply 2
-add
-call Output.printInt 1
+neg
+call Main.fillMemory 3
 pop temp 0
-push constant 123
+push constant 8000
 pop local 0
+push local 0
+call Main.convert 1
+pop temp 0
+push constant 0
+return
+function Main.convert 0
 push constant 1
-pop static 0
-push constant 2
-pop static 1
-push constant 3
-pop static 2
-push static 0
-push constant 5
+neg
+pop local 3
+label Main_0
+push local 3
+not
+if-goto Main_1
+push local 2
+push constant 1
+add
+pop local 2
+push local 1
+pop local 1
+push local 2
+push constant 16
 gt
 not
-if-goto L_0
-push static 2
-push constant 1
+not
+if-goto Main_2
+push argument 0
+push local 1
+and
+push constant 0
+eq
+not
+not
+if-goto Main_3
+push constant 8000
+push local 2
 add
-pop static 2
-goto L_1
-label L_0
-push static 2
 push constant 1
-sub
-pop static 2
-label L_1
-label L_2
-push local 0
+call Memory.poke 2
+pop temp 0
+goto Main_4
+label Main_3
+push constant 8000
+push local 2
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+label Main_4
+goto Main_5
+label Main_2
+push constant 0
+pop local 3
+label Main_5
+goto Main_0
+label Main_0
+push constant 0
+return
+function Main.nextMask 0
+push argument 1
+push constant 0
+eq
+not
+if-goto Main_6
+push constant 1
+return
+goto Main_7
+label Main_6
+push argument 1
+push constant 2
+call Math.multiply 2
+return
+label Main_7
+function Main.fillMemory 0
+label Main_8
+push argument 3
 push constant 0
 gt
 not
-if-goto L_3
-push local 0
+if-goto Main_9
+push argument 2
+push argument 4
+call Memory.poke 2
+pop temp 0
+push argument 3
 push constant 1
 sub
-pop local 0
-goto L_2
-label L_2
+pop argument 3
+push argument 2
+push constant 1
+add
+pop argument 2
+goto Main_8
+label Main_8
 push constant 0
 return
