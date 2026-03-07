@@ -55,19 +55,16 @@ class CompilationEngine {
       this.className = this.processName('class'); // push class name e.g. Main
       this.advance();
       this.processSymbol('{'); // push {
-      let numLocalVars = 0;
       while (this.peek().value === 'static' || this.peek().value === 'field') {
         this.processClassVarDec();
-        numLocalVars++;
       }
-      this.processSubroutineDec(numLocalVars);
+      this.processSubroutineDec();
       this.advance();
       this.processSymbol('}'); // push }
     }
   }
 
   processParameterList() {
-    this.addToResult('<parameterList>');
     let argIndex = 1; // argument index starts with 1 because of "this" argument for methods
     while (this.isType(this.peek().token)) {
       this.advance();
@@ -85,11 +82,9 @@ class CompilationEngine {
         argIndex++;
       }
     }
-    this.addToResult('</parameterList>');
   }
 
-  // this.codeWrite.vmResult.push(`function ${name}`);
-  processSubroutineDec(numLocalVars = 0) {
+  processSubroutineDec() {
     while (
       this.peek().value === 'constructor' ||
       this.peek().value === 'function' ||
@@ -101,24 +96,26 @@ class CompilationEngine {
       this.processTypeOrVoid();
       this.advance();
       const functionName = this.processName('subroutine'); // push subroutine name e.g. new / dispose / main
-      this.codeWrite.vmResult.push(
-        `function ${this.className}.${functionName} ${numLocalVars}`,
-      );
       this.advance();
       this.processSymbol('(');
       this.processParameterList();
       this.advance();
       this.processSymbol(')');
-      this.processSubroutineBody();
+      this.processSubroutineBody(functionName);
     }
   }
 
-  processSubroutineBody() {
+  processSubroutineBody(functionName) {
     this.advance();
     this.processSymbol('{');
+    let totalLocalVars = 0;
     while (this.peek().value === 'var') {
-      this.processVarDec();
+      const typeCount = this.processVarDec();
+      totalLocalVars += typeCount;
     }
+    this.codeWrite.vmResult.push(
+      `function ${this.className}.${functionName} ${totalLocalVars}`,
+    );
     this.processStatements();
     this.advance();
     this.processSymbol('}');
@@ -358,16 +355,21 @@ class CompilationEngine {
       this.peek().type === 'symbol' &&
       this.peek().value === '.'
     ) {
-      this.processName('subroutine');
+      const name = this.processName('subroutine');
       this.advance();
       this.processSymbol('.');
       this.advance();
-      this.processName('subroutine');
+      const subName = this.processName('subroutine');
       this.advance();
       this.processSymbol('(');
-      result = this.processExpressionList()[0];
+      result = this.processExpressionList();
       this.advance();
       this.processSymbol(')');
+      const functionName = subName ? `${name}.${subName}` : name;
+      result = {
+        type: 'f',
+        value: { fn: functionName, expressions: result },
+      };
     } else if (type === 'identifier') {
       const varName = this.processName('var', null, 'used');
       result = { type: 'print', value: this.getVarFromTable(varName, 'push') };
@@ -417,6 +419,7 @@ class CompilationEngine {
       }
       this.advance();
       this.processSymbol(';');
+      return varIndex;
     }
   }
 
@@ -430,7 +433,6 @@ class CompilationEngine {
       const varType = this.processType();
       this.advance();
       this.processName(value, fieldIndex, 'defined', varType);
-      this.classSymbolTable;
       fieldIndex++;
       while (this.peek().value === ',') {
         this.advance();
