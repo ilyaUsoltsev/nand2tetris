@@ -190,6 +190,7 @@ class CompilationEngine {
     this.codeWrite.codeWrite(ifExp);
     this.codeWrite.vmResult.push('not');
     const L1 = this.getLabel();
+    const L2 = this.getLabel();
     this.codeWrite.vmResult.push(`if-goto ${L1}`);
     this.advance();
     this.processSymbol(')');
@@ -199,7 +200,6 @@ class CompilationEngine {
     this.processStatements();
     this.advance();
     this.processSymbol('}');
-    const L2 = this.getLabel();
     this.codeWrite.vmResult.push(`goto ${L2}`);
 
     this.codeWrite.vmResult.push(`label ${L1}`);
@@ -217,6 +217,7 @@ class CompilationEngine {
   }
   processWhileStatement() {
     const L1 = this.getLabel();
+    const L2 = this.getLabel();
     this.codeWrite.vmResult.push(`label ${L1}`);
     this.advance();
     this.addToResult(this.currentToken); // while token
@@ -225,7 +226,6 @@ class CompilationEngine {
     const whileExp = this.processExpression();
     this.codeWrite.codeWrite(whileExp);
     this.codeWrite.vmResult.push('not');
-    const L2 = this.getLabel();
     this.codeWrite.vmResult.push(`if-goto ${L2}`);
     this.advance();
     this.processSymbol(')');

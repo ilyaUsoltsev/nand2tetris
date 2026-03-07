@@ -41,27 +41,27 @@ push constant 0
 eq
 not
 not
-if-goto Main_3
+if-goto Main_4
 push constant 8000
 push local 1
 add
 push constant 1
 call Memory.poke 2
 pop temp 0
-goto Main_4
-label Main_3
+goto Main_5
+label Main_4
 push constant 8000
 push local 1
 add
 push constant 0
 call Memory.poke 2
 pop temp 0
-label Main_4
-goto Main_5
+label Main_5
+goto Main_3
 label Main_2
 push constant 0
 pop local 2
-label Main_5
+label Main_3
 goto Main_0
 label Main_1
 push constant 0
