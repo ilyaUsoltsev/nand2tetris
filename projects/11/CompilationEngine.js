@@ -191,7 +191,7 @@ class CompilationEngine {
     this.codeWrite.vmResult.push('not');
     const L1 = this.getLabel();
     const L2 = this.getLabel();
-    this.codeWrite.vmResult.push(`if-goto ${L1}`);
+    this.codeWrite.vmResult.push(`if-goto ${L2}`);
     this.advance();
     this.processSymbol(')');
 
@@ -200,9 +200,9 @@ class CompilationEngine {
     this.processStatements();
     this.advance();
     this.processSymbol('}');
-    this.codeWrite.vmResult.push(`goto ${L2}`);
+    this.codeWrite.vmResult.push(`goto ${L1}`);
 
-    this.codeWrite.vmResult.push(`label ${L1}`);
+    this.codeWrite.vmResult.push(`label ${L2}`);
     if (this.peek().value === 'else') {
       this.advance();
       this.addToResult(this.currentToken); // else token
@@ -213,7 +213,7 @@ class CompilationEngine {
       this.advance();
       this.processSymbol('}');
     }
-    this.codeWrite.vmResult.push(`label ${L2}`);
+    this.codeWrite.vmResult.push(`label ${L1}`);
   }
   processWhileStatement() {
     const L1 = this.getLabel();
@@ -375,7 +375,9 @@ class CompilationEngine {
       const varName = this.processName('var', null, 'used');
       result = { type: 'print', value: this.getVarFromTable(varName, 'push') };
     } else {
-      throw new Error(`Unknown term type ${type} with value ${value}`);
+      throw new Error(
+        `Unknown term type ${type} with value ${value} in class ${this.className}`,
+      );
     }
     return result;
   }
