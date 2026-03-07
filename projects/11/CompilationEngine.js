@@ -90,6 +90,7 @@ class CompilationEngine {
       this.peek().value === 'function' ||
       this.peek().value === 'method'
     ) {
+      this.subroutineSymbolTable = { arg: 0, var: 0 };
       this.advance();
       this.addToResult(this.currentToken); // push function/method/constructor
       this.advance();
