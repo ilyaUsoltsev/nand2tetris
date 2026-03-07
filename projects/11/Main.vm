@@ -63,7 +63,7 @@ push constant 0
 pop local 2
 label Main_5
 goto Main_0
-label Main_0
+label Main_1
 push constant 0
 return
 function Main.nextMask 0
@@ -101,6 +101,6 @@ push constant 1
 add
 pop argument 0
 goto Main_8
-label Main_8
+label Main_9
 push constant 0
 return
