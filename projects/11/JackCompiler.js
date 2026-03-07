@@ -48,7 +48,7 @@ function main() {
       for (const filePath of jackFiles) {
         writeFileSync(
           join(input, `${basename(filePath, '.jack')}.vm`),
-          translateFile(filePath).join('\n'),
+          translateFile(filePath).join('\n') + '\n',
         );
       }
 
@@ -62,8 +62,7 @@ function main() {
       const baseFileName = basename(input, '.jack');
       const outputFileName = join(dirname(input), `${baseFileName}.vm`);
       const result = translateFile(input);
-
-      writeFileSync(outputFileName, result.join('\n'));
+      writeFileSync(outputFileName, result.join('\n') + '\n');
       console.log(`Successfully translated: ${outputFileName}`);
     }
   } catch (error) {
