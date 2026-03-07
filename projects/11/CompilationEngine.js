@@ -217,15 +217,17 @@ class CompilationEngine {
     this.codeWrite.vmResult.push(`label ${L2}`);
   }
   processWhileStatement() {
-    this.addToResult('<whileStatement>');
-    this.indentation++;
-
+    const L1 = this.getLabel();
+    const L2 = this.getLabel();
+    this.codeWrite.vmResult.push(`label ${L1}`);
     this.advance();
     this.addToResult(this.currentToken); // while token
-
     this.advance();
     this.processSymbol('(');
-    this.processExpression();
+    const whileExp = this.processExpression();
+    this.codeWrite.codeWrite(whileExp);
+    this.codeWrite.vmResult.push('not');
+    this.codeWrite.vmResult.push(`if-goto ${L2}`);
     this.advance();
     this.processSymbol(')');
 
@@ -234,9 +236,8 @@ class CompilationEngine {
     this.processStatements();
     this.advance();
     this.processSymbol('}');
-
-    this.indentation--;
-    this.addToResult('</whileStatement>');
+    this.codeWrite.vmResult.push(`goto ${L1}`);
+    this.codeWrite.vmResult.push(`label ${L1}`);
   }
 
   processDoStatement() {

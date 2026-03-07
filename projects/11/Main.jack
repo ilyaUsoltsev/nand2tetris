@@ -15,6 +15,10 @@ class Main {
          let c = c - 1;
       }
 
+      while(loop > 0) {
+         let loop = loop - 1;
+      }
+
       return;
    }
 

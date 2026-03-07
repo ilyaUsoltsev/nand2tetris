@@ -30,5 +30,17 @@ push constant 1
 sub
 pop static 2
 label L_1
+label L_2
+push local 0
+push constant 0
+gt
+not
+if-goto L_3
+push local 0
+push constant 1
+sub
+pop local 0
+goto L_2
+label L_2
 push constant 0
 return
