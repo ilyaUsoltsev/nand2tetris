@@ -21,6 +21,11 @@ class CodeWrite {
         return;
       }
 
+      case 'print': {
+        this.vmResult.push(expression.value);
+        return;
+      }
+
       case 'keyword': {
         if (expression.value === 'true') {
           this.vmResult.push(`push constant 1`);

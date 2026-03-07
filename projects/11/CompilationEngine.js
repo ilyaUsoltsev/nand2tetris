@@ -23,6 +23,7 @@ class CompilationEngine {
     this.subroutineSymbolTable = { arg: 0, var: 0 };
     this.codeWrite = new CodeWrite();
     this.className = '';
+    this.labelCount = 0;
   }
 
   advance() {
@@ -180,15 +181,17 @@ class CompilationEngine {
   }
 
   processIfStatement() {
-    this.addToResult('<ifStatement>');
-    this.indentation++;
-
     this.advance();
     this.addToResult(this.currentToken); // if token
 
     this.advance();
     this.processSymbol('(');
-    this.processExpression();
+    const ifExp = this.processExpression();
+    console.log(JSON.stringify(ifExp), 'ifExps');
+    this.codeWrite.codeWrite(ifExp);
+    this.codeWrite.vmResult.push('not');
+    const L1 = this.getLabel();
+    this.codeWrite.vmResult.push(`if-goto ${L1}`);
     this.advance();
     this.processSymbol(')');
 
@@ -197,7 +200,10 @@ class CompilationEngine {
     this.processStatements();
     this.advance();
     this.processSymbol('}');
+    const L2 = this.getLabel();
+    this.codeWrite.vmResult.push(`goto ${L2}`);
 
+    this.codeWrite.vmResult.push(`label ${L1}`);
     if (this.peek().value === 'else') {
       this.advance();
       this.addToResult(this.currentToken); // else token
@@ -208,9 +214,7 @@ class CompilationEngine {
       this.advance();
       this.processSymbol('}');
     }
-
-    this.indentation--;
-    this.addToResult('</ifStatement>');
+    this.codeWrite.vmResult.push(`label ${L2}`);
   }
   processWhileStatement() {
     this.addToResult('<whileStatement>');
@@ -299,7 +303,7 @@ class CompilationEngine {
     this.indentation++;
     this.advance();
     const { type, value } = this.processToken(this.currentToken);
-    let result = true;
+    let result = 'PROCESSED TERM';
     if (
       type === 'integerConstant' ||
       type === 'stringConstant' ||
@@ -316,7 +320,8 @@ class CompilationEngine {
       this.peek().type !== 'symbol' &&
       this.peek().value !== '['
     ) {
-      this.processName('var', null, 'used');
+      const varName = this.processName('var', null, 'used');
+      result = { type: 'print', value: this.getVarFromTable(varName, 'push') };
     } else if (
       type === 'identifier' &&
       this.peek().type === 'symbol' &&
@@ -363,7 +368,8 @@ class CompilationEngine {
       this.advance();
       this.processSymbol(')');
     } else if (type === 'identifier') {
-      this.processName('var', null, 'used');
+      const varName = this.processName('var', null, 'used');
+      result = { type: 'print', value: this.getVarFromTable(varName, 'push') };
     } else {
       throw new Error(`Unknown term type ${type} with value ${value}`);
     }
@@ -558,6 +564,12 @@ class CompilationEngine {
 
   popFromResult() {
     this.result.pop();
+  }
+
+  getLabel() {
+    const label = `L_${this.labelCount}`;
+    this.labelCount++;
+    return label;
   }
 }
 

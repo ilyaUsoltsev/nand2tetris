@@ -6,8 +6,29 @@ call Math.multiply 2
 add
 call Output.printInt 1
 pop temp 0
-push constant 1
-neg
+push constant 123
 pop local 0
+push constant 1
+pop static 0
+push constant 2
+pop static 1
+push constant 3
+pop static 2
+push static 0
+push constant 5
+gt
+not
+if-goto L_0
+push static 2
+push constant 1
+add
+pop static 2
+goto L_1
+label L_0
+push static 2
+push constant 1
+sub
+pop static 2
+label L_1
 push constant 0
 return
