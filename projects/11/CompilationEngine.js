@@ -356,6 +356,9 @@ class CompilationEngine {
       if (type === 'keyword') {
         result = { type, value };
       }
+      if (type === 'stringConstant') {
+        result = { type, value };
+      }
     } else if (
       type === 'identifier' &&
       this.peek().type !== 'symbol' &&

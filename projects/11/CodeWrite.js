@@ -26,6 +26,17 @@ class CodeWrite {
         return;
       }
 
+      case 'stringConstant': {
+        const str = expression.value;
+        this.vmResult.push(`push constant ${str.length}`);
+        this.vmResult.push(`call String.new 1`);
+        for (const char of str) {
+          this.vmResult.push(`push constant ${char.charCodeAt(0)}`);
+          this.vmResult.push(`call String.appendChar 2`);
+        }
+        return;
+      }
+
       case 'keyword': {
         if (expression.value === 'true') {
           this.vmResult.push(`push constant 1`);
