@@ -11,3 +11,18 @@ pop this 2
 return
 push pointer 0
 return
+function Point.move 0
+push argument 0
+pointer 0
+push this 0
+push argument 0
+add
+pop this 0
+push this 1
+push argument 1
+add
+pop this 1
+push constant 0
+return
+push constant 0
+return

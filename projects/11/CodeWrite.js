@@ -34,6 +34,12 @@ class CodeWrite {
         if (expression.value === 'false') {
           this.vmResult.push(`push constant 0`);
         }
+        if (expression.value === 'null') {
+          this.vmResult.push(`push constant 0`);
+        }
+        if (expression.value === 'this') {
+          this.vmResult.push(`push pointer 0`);
+        }
         return;
       }
 

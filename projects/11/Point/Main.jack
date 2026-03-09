@@ -2,7 +2,7 @@ class Main {
     field Point p;
 
    function void main() {
-        let p = Pointer new(10, 20, 5);
+        let p = Point.new(10, 20, 5);
         do p.move(5, -10);
         return;
    }

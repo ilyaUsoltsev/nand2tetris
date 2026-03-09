@@ -1,0 +1,19 @@
+class Point {
+    field int x;
+    field int y;
+    field int size;
+    
+    constructor Pointer new(int ax, int ay, int asize) {
+      let x = ax;
+      let y = ay;
+      let size = asize;
+      return this;
+   }
+
+   method void move(int dx, int dy) {
+      let x = x + dx;
+      let y = y + dy;
+      return;
+   }
+}
+

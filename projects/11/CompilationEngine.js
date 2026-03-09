@@ -90,8 +90,10 @@ class CompilationEngine {
       this.peek().value === 'function' ||
       this.peek().value === 'method'
     ) {
+      const functionType = this.peek().value;
       this.subroutineSymbolTable = { arg: 0, var: 0 };
       this.advance();
+      const returnType = this.peek().value;
       this.addToResult(this.currentToken); // push function/method/constructor
       this.advance();
       this.processTypeOrVoid();
@@ -102,11 +104,11 @@ class CompilationEngine {
       this.processParameterList();
       this.advance();
       this.processSymbol(')');
-      this.processSubroutineBody(functionName);
+      this.processSubroutineBody(functionName, functionType, returnType);
     }
   }
 
-  processSubroutineBody(functionName) {
+  processSubroutineBody(functionName, functionType, returnType) {
     this.advance();
     this.processSymbol('{');
     let totalLocalVars = 0;
@@ -117,7 +119,26 @@ class CompilationEngine {
     this.codeWrite.vmResult.push(
       `function ${this.className}.${functionName} ${totalLocalVars}`,
     );
+    if (functionType === 'constructor') {
+      const fieldCount = this.classSymbolTable.field;
+      this.codeWrite.vmResult.push(`push constant ${fieldCount}`);
+      this.codeWrite.vmResult.push(`call Memory.alloc 1`);
+      this.codeWrite.vmResult.push(`pop pointer 0`);
+    } else if (functionType === 'method') {
+      this.codeWrite.vmResult.push('push argument 0');
+      this.codeWrite.vmResult.push('pop pointer 0');
+    }
     this.processStatements();
+
+    if (functionType === 'constructor') {
+      // this.codeWrite.vmResult.push('push pointer 0');
+      // this.codeWrite.vmResult.push('return');
+    } else if (functionType === 'method') {
+      // if (returnType === 'void') {
+      //   this.codeWrite.vmResult.push('push pointer 0');
+      // }
+      // this.codeWrite.vmResult.push('return');
+    }
     this.advance();
     this.processSymbol('}');
   }
@@ -174,7 +195,7 @@ class CompilationEngine {
       info = this.classSymbolTable[varName];
     }
     if (!info) {
-      throw new Error(`Variable is not declared ${varName}`);
+      throw new Error(`Variable is not declared ${varName} ${this.className}`);
     }
 
     return `${action} ${vmMap[info[2]]} ${info[3]}`;
@@ -256,19 +277,43 @@ class CompilationEngine {
 
     this.advance();
     this.processSymbol('(');
-    const results = this.processExpressionList();
+    let results = [];
+    if (!(this.peek().value === ')')) {
+      results = this.processExpressionList();
+    }
     this.advance();
     this.processSymbol(')');
 
     this.advance();
     this.processSymbol(';');
 
-    const functionName = subName ? `${name}.${subName}` : name;
+    let functionName = subName
+      ? `${name}.${subName}`
+      : `${this.className}.${name}`;
+
+    if (this.classSymbolTable[name] || this.subroutineSymbolTable[name]) {
+      const varType = this.classSymbolTable[name]
+        ? this.classSymbolTable[name][1]
+        : this.subroutineSymbolTable[name][1];
+      functionName = `${varType}.${subName}`;
+      results.unshift({
+        type: 'print',
+        value: this.getVarFromTable(name, 'push'),
+      });
+    }
+
+    if (!subName) {
+      results.unshift({
+        type: 'print',
+        value: 'push pointer 0',
+      });
+    }
+
     this.codeWrite.codeWrite({
       type: 'f',
       value: { fn: functionName, expressions: results },
     });
-    this.codeWrite.vmResult.push('pop temp 0'); // discard return value of do statement
+    this.codeWrite.vmResult.push('pop temp 0');
   }
   processReturnStatement() {
     this.advance();
@@ -280,9 +325,7 @@ class CompilationEngine {
     } else {
       this.codeWrite.codeWrite({ type: 'integerConstant', value: 0 });
     }
-
     this.codeWrite.vmResult.push('return');
-
     this.advance();
     this.processSymbol(';');
   }
@@ -348,7 +391,11 @@ class CompilationEngine {
       this.processName('subroutine');
       this.advance();
       this.processSymbol('(');
-      result = this.processExpressionList()[0];
+      if (!(this.peek().value === ')')) {
+        result = this.processExpressionList();
+      } else {
+        result = [];
+      }
       this.advance();
       this.processSymbol(')');
     } else if (
@@ -363,10 +410,22 @@ class CompilationEngine {
       const subName = this.processName('subroutine');
       this.advance();
       this.processSymbol('(');
-      result = this.processExpressionList();
+      if (!(this.peek().value === ')')) {
+        result = this.processExpressionList();
+      } else {
+        result = [];
+      }
       this.advance();
       this.processSymbol(')');
-      const functionName = subName ? `${name}.${subName}` : name;
+      let functionName = subName ? `${name}.${subName}` : name;
+      //  method call
+      if (subName === 'new') {
+        // result.unshift({
+        //   type: 'print',
+        //   value: this.getVarFromTable(name, 'push'),
+        // });
+      }
+
       result = {
         type: 'f',
         value: { fn: functionName, expressions: result },
@@ -376,7 +435,7 @@ class CompilationEngine {
       result = { type: 'print', value: this.getVarFromTable(varName, 'push') };
     } else {
       throw new Error(
-        `Unknown term type ${type} with value ${value} in class ${this.className}`,
+        `Unknown term type ${type} with value ${value} in class ${this.className}. peeked token is ${JSON.stringify(this.peek())}`,
       );
     }
     return result;
