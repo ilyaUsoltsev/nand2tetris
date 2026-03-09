@@ -27,7 +27,7 @@ class CodeWrite {
       }
 
       case 'stringConstant': {
-        const str = expression.value;
+        const str = expression.value.slice(1, -1); // Remove quotes
         this.vmResult.push(`push constant ${str.length}`);
         this.vmResult.push(`call String.new 1`);
         for (const char of str) {
@@ -79,6 +79,17 @@ class CodeWrite {
         const { fn, expressions } = expression.value;
         for (const exp of expressions) this.codeWrite(exp);
         this.vmResult.push(`call ${fn} ${expressions.length}`);
+        return;
+      }
+
+      case 'arrayAccess': {
+        const { arrayName, indexExp } = expression.value;
+        const { segment, index } = this.resolveVar(arrayName);
+        this.codeWrite(indexExp); // index
+        this.vmResult.push(`push ${segment} ${index}`); // base address of array
+        this.vmResult.push('add'); // address of array[index]
+        this.vmResult.push('pop pointer 1'); // THAT points to array[index]
+        this.vmResult.push('push that 0'); // push array[index]
         return;
       }
 

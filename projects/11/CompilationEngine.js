@@ -21,7 +21,17 @@ class CompilationEngine {
     this.vmResult = [];
     this.classSymbolTable = { field: 0, static: 0 };
     this.subroutineSymbolTable = { arg: 0, var: 0 };
-    this.codeWrite = new CodeWrite();
+    this.codeWrite = new CodeWrite((name) => {
+      let info = this.subroutineSymbolTable[name];
+      if (!info) {
+        info = this.classSymbolTable[name];
+      }
+      if (!info) {
+        throw new Error(`Variable is not declared ${name} ${this.className}`);
+      }
+
+      return { segment: vmMap[info[2]], index: info[3] };
+    });
     this.className = '';
     this.labelCount = 0;
   }
@@ -174,20 +184,31 @@ class CompilationEngine {
     this.addToResult(this.currentToken); // let token
     this.advance();
     const varName = this.processName('var', null, 'used'); // var name
-
+    let isArray = false;
     // [expression]
     while (this.peek().value === '[') {
+      isArray = true;
       this.advance();
       this.processSymbol('[');
-      this.processExpression(); // Array LATER
+      const exp = this.processExpression(); // Array LATER
+      this.codeWrite.codeWrite(exp);
+      this.codeWrite.vmResult.push(this.getVarFromTable(varName, 'push'));
       this.advance();
       this.processSymbol(']');
+      this.codeWrite.vmResult.push('add');
     }
     this.advance();
     this.processSymbol('=');
     const exp = this.processExpression();
     this.codeWrite.codeWrite(exp);
-    this.codeWrite.vmResult.push(this.getVarFromTable(varName, 'pop'));
+    if (isArray) {
+      this.codeWrite.vmResult.push('pop temp 0');
+      this.codeWrite.vmResult.push('pop pointer 1');
+      this.codeWrite.vmResult.push('push temp 0');
+      this.codeWrite.vmResult.push('pop that 0');
+    } else {
+      this.codeWrite.vmResult.push(this.getVarFromTable(varName, 'pop'));
+    }
     this.advance();
     this.processSymbol(';');
   }
@@ -374,12 +395,16 @@ class CompilationEngine {
       this.peek().type === 'symbol' &&
       this.peek().value === '['
     ) {
-      this.processName('var', null, 'used');
+      const varName = this.processName('var', null, 'used');
       this.advance();
       this.processSymbol('[');
-      this.processExpression();
+      const exp = this.processExpression();
       this.advance();
       this.processSymbol(']');
+      result = {
+        type: 'arrayAccess',
+        value: { arrayName: varName, indexExp: exp },
+      };
     } else if (type === 'symbol' && value === '(') {
       this.processSymbol('(');
       result = this.processExpression();
