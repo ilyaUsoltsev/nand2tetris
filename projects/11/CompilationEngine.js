@@ -91,7 +91,10 @@ class CompilationEngine {
       this.peek().value === 'method'
     ) {
       const functionType = this.peek().value;
-      this.subroutineSymbolTable = { arg: 0, var: 0 };
+      this.subroutineSymbolTable = {
+        arg: functionType === 'method' ? 1 : 0,
+        var: 0,
+      };
       this.advance();
       const returnType = this.peek().value;
       this.addToResult(this.currentToken); // push function/method/constructor
@@ -407,6 +410,7 @@ class CompilationEngine {
       this.peek().value === '.'
     ) {
       const name = this.processName('subroutine');
+
       this.advance();
       this.processSymbol('.');
       this.advance();
@@ -421,12 +425,16 @@ class CompilationEngine {
       this.advance();
       this.processSymbol(')');
       let functionName = subName ? `${name}.${subName}` : name;
-      //  method call
-      if (subName === 'new') {
-        // result.unshift({
-        //   type: 'print',
-        //   value: this.getVarFromTable(name, 'push'),
-        // });
+
+      if (this.classSymbolTable[name] || this.subroutineSymbolTable[name]) {
+        const varType = this.classSymbolTable[name]
+          ? this.classSymbolTable[name][1]
+          : this.subroutineSymbolTable[name][1];
+        functionName = `${varType}.${subName}`;
+        result.unshift({
+          type: 'print',
+          value: this.getVarFromTable(name, 'push'),
+        });
       }
 
       result = {
