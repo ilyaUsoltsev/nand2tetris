@@ -72,7 +72,6 @@ class Tokenizer {
           tempCount++;
         }
         this.currentCount = tempCount;
-        console.log('String constant is ', str.length);
         result.push(`<stringConstant> '${str}' </stringConstant>`);
       } else if (!isNaN(Number(el)) && el.charCodeAt() !== 32) {
         let num = '';
