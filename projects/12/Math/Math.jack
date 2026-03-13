@@ -32,8 +32,7 @@ class Math {
         let powersOfTwo[12] = 4096;
         let powersOfTwo[13] = 8192;
         let powersOfTwo[14] = 16384;
-        let powersOfTwo[15] = 16384 + 16384;
-        return;
+        let powersOfTwo[15] = 32768;
     }
 
     /** Returns the product of x and y. 
@@ -64,63 +63,47 @@ class Math {
      *  Thus, x/y and Math.divide(x,y) return the same value. */
     function int divide(int x, int y) {
         var int result;
-        var int absX, absY;
+        var int doubleY;
         var int sign;
+        let result = 0;
+        let doubleY = 0;
+        let sign = 1;
 
-        // Determine sign of result
+        if((y > x) | (y < 0)) {
+            return result;
+        }
+
         if(((x<0) & (y<0)) | ((x>0) & (y>0))) {
             let sign = 1;
         } else {
             let sign = -1;
         }
 
-        // Work with absolute values
-        let absX = Math.abs(x);
-        let absY = Math.abs(y);
 
-        let result = Math.divideHelper(absX, absY);
 
-        return result * sign;
-    }
+        let doubleY = multiply(y, 2);
+        let result = divide(x, doubleY);
 
-    /** Helper function for divide - works with positive numbers only */
-    function int divideHelper(int x, int y) {
-        var int q;
-        var int result;
-
-        // Base case
-        if((y > x) | (y < 0)) {
-            return 0;
-        }
-
-        let q = Math.divideHelper(x, y + y);
-
-        if((x - ((q + q) * y)) < y) {
-            let result = q + q;
+        if((x - multiply(result, doubleY)) < y) {
+            return multiply(multiply(2, result), sign);
         } else {
-            let result = q + q + 1;
+            return multiply(multiply(2, result) + 1, sign);
         }
-
-        return result;
     }
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
-        var int y, j, temp, tempSquared;
-        let y = 0;
-        let j = 7; // (n/2) - 1 where n=16
+        var int result;
+        var int doubleResult;
+        let result = 0;
+        let doubleResult = 0;
 
-        while(~(j < 0)) {
-            let temp = y + powersOfTwo[j];
-            let tempSquared = temp * temp;
-
-            if(~(tempSquared > x) & (tempSquared > 0)) {
-                let y = temp;
-            }
-            let j = j - 1;
+        while(multiply(result, result) <= x) {
+            let result = result + 1;
         }
+        let result = result - 1; // the loop goes one step further, so we need to go back one step
 
-        return y;
+        return result;
     }
 
     /** Returns the greater value. */
