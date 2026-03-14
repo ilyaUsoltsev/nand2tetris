@@ -1,0 +1,52 @@
+class Memory {
+    static Array memory;
+    static Array freeList;
+
+    function void init() {
+        let memory = 2048;
+        let freeList = 2048;
+        let freeList[0] = 14334;
+        let freeList[1] = 0;
+        return;
+    }
+
+    function int peek(int address) {
+        return memory[address];
+    }
+
+    function void poke(int address, int value) {
+        let memory[address] = value;
+        return;
+    }
+
+    function Array alloc(int size) {
+        var int allocSize;
+        var Array block;
+        var Array current;
+
+        let allocSize = size + 2;
+        let current = freeList;
+
+        while (~(current = 0)) {
+            if (current[0] > allocSize) {
+                let current[0] = current[0] - allocSize;
+                let block = current + current[0];
+                let block[0] = size;
+                let block[1] = 0;
+                return block + 2;
+            }
+            let current = current[1];
+        }
+
+        return 0;
+    }
+
+    function void deAlloc(Array o) {
+        var Array segment;
+
+        let segment = o - 2;
+        let segment[1] = freeList;
+        let freeList = segment;
+        return;
+    }
+}
